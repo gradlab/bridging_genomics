@@ -1,0 +1,1265 @@
+#!/usr/bin/env python3
+"""
+Tree Builder Script
+Builds episode-aware hybrid transmission trees from simulation outputs
+Only runs if single lineage detected by lineage assessment
+"""
+
+import pandas as pd
+import numpy as np
+import argparse
+import os
+import json
+from collections import defaultdict
+import dendropy
+
+# Set up dendropy namespace
+taxa = dendropy.TaxonNamespace()
+
+# ========== ORIGINAL TREE BUILDING FUNCTIONS (UNCHANGED) ==========
+def assign_episode_numbers_from_lineage(transmission_df, initial_infectors, lineage_episodes_file):
+    """Assign episode numbers based on proven lineage episodes"""
+    
+    print(f"🔢 Loading proven lineage episodes from: {lineage_episodes_file}")
+    
+    # Load lineage episodes
+    with open(lineage_episodes_file, 'r') as f:
+        episodes = json.load(f)
+    
+    print(f"   Loaded {len(episodes)} proven episodes")
+    
+    # Group episodes by node and add sequential numbers
+    episodes_by_node = defaultdict(list)
+    for ep in episodes:
+        episodes_by_node[ep['node']].append(ep)
+    
+    # Sort each node's episodes chronologically and number them
+    for node_id in episodes_by_node:
+        episodes_by_node[node_id].sort(key=lambda x: x['start'])
+        for i, ep in enumerate(episodes_by_node[node_id]):
+            ep['episode_num'] = i + 1
+    
+    # Map transmissions to episodes
+    df = transmission_df.copy()
+    df['infectee_episode'] = 0
+    df['infector_episode'] = 0
+    
+    print("   Mapping transmissions to proven episodes...")
+    
+    # Extract initial infector node IDs
+    if len(initial_infectors) > 0:
+        initial_infector_ids = {int(node_id) for node_id, _ in initial_infectors}
+    else:
+        initial_infector_ids = set()
+    
+    missing_episodes = 0
+    
+    for idx, row in df.iterrows():
+        infectee_id = row['infectee_node']
+        infector_id = row['infector_node']
+        tx_day = row['day_of_transmission']
+        
+        # Find infectee episode - should always start on transmission day
+        infectee_episode = None
+        for ep in episodes_by_node[infectee_id]:
+            if ep['start'] == tx_day:
+                infectee_episode = ep['episode_num']
+                break
+
+        if infectee_episode is None:
+            print(f"   ERROR: No episode starts on day {tx_day} for infectee {infectee_id}")
+            missing_episodes += 1
+        
+        if infectee_episode is not None:
+            df.loc[idx, 'infectee_episode'] = infectee_episode
+        else:
+            print(f"   WARNING: No episode found for infectee {infectee_id} at day {tx_day}")
+            missing_episodes += 1
+        
+        # Find infector episode
+        infector_episode = None
+        
+        if infector_id in episodes_by_node:
+            for ep in episodes_by_node[infector_id]:
+                if ep['start'] <= tx_day < ep['end']:
+                    infector_episode = ep['episode_num']
+                    break
+        
+        if infector_episode is not None:
+            df.loc[idx, 'infector_episode'] = infector_episode
+        elif infector_id in initial_infector_ids:
+            df.loc[idx, 'infector_episode'] = 1  # Seeded episode
+        else:
+            print(f"   WARNING: No episode found for infector {infector_id} at day {tx_day}")
+            missing_episodes += 1
+    
+    print(f"   Episode assignment complete!")
+    print(f"   Missing episodes: {missing_episodes}")
+    
+    return df
+
+
+
+def test_episode_assignments(transmission_df_with_episodes, test_nodes=None):
+    """Test and visualize episode assignments for specific nodes"""
+    
+    if test_nodes is None:
+        # Use random sample of nodes for testing
+        all_nodes = list(transmission_df_with_episodes['infectee_node'].unique())
+        test_nodes = np.random.choice(all_nodes, min(5, len(all_nodes)), replace=False)
+    
+    print("\n=== TESTING EPISODE ASSIGNMENTS ===")
+    
+    for node_id in test_nodes:
+        print(f"\n--- NODE {node_id} ---")
+        
+        # Get all records where this node is the infectee
+        as_infectee = transmission_df_with_episodes[
+            transmission_df_with_episodes['infectee_node'] == node_id
+        ].sort_values('day_of_transmission')
+        
+        print(f"Infections of node {node_id}:")
+        for i, (idx, row) in enumerate(as_infectee.iterrows()):
+            tx_day = row['day_of_transmission']
+            sample_day = row['day_of_sampling']
+            episode = row['infectee_episode']
+            infector = row['infector_node']
+            infector_ep = row['infector_episode']
+            print(f"  Episode {episode}: tx_day={tx_day}, sample_day={sample_day}, from {infector}_ep{infector_ep}")
+        
+        # Get all records where this node is the infector
+        as_infector = transmission_df_with_episodes[
+            transmission_df_with_episodes['infector_node'] == node_id
+        ].sort_values('day_of_transmission')
+        
+        if len(as_infector) > 0:
+            print(f"Transmissions by node {node_id}:")
+            for i, (idx, row) in enumerate(as_infector.iterrows()):
+                tx_day = row['day_of_transmission']
+                infectee = row['infectee_node']
+                infectee_ep = row['infectee_episode']
+                infector_ep = row['infector_episode']
+                print(f"  Day {tx_day}: {node_id}_ep{infector_ep} -> {infectee}_ep{infectee_ep}")
+
+def check_same_day_reinfections_episodes(transmission_df_with_episodes):
+    """Check how episode assignments handle same-day reinfections"""
+    
+    print("\n=== CHECKING SAME-DAY REINFECTIONS WITH EPISODES ===")
+    
+    same_day_cases = []
+    
+    for node_id, group in transmission_df_with_episodes.groupby('infectee_node'):
+        if len(group) <= 1:
+            continue
+            
+        group_sorted = group.sort_values('day_of_transmission')
+        
+        for i in range(len(group_sorted) - 1):
+            current_sample = group_sorted.iloc[i]['day_of_sampling']
+            next_tx = group_sorted.iloc[i + 1]['day_of_transmission']
+            current_ep = group_sorted.iloc[i]['infectee_episode']
+            next_ep = group_sorted.iloc[i + 1]['infectee_episode']
+            
+            # Same-day reinfection case
+            if pd.notna(current_sample) and current_sample == next_tx:
+                same_day_cases.append({
+                    'node_id': node_id,
+                    'recovery_day': current_sample,
+                    'reinfection_day': next_tx,
+                    'episode_1': current_ep,
+                    'episode_2': next_ep
+                })
+    
+    print(f"Found {len(same_day_cases)} same-day reinfection cases:")
+    for case in same_day_cases[:10]:  # Show first 10
+        print(f"  Node {case['node_id']}: ep{case['episode_1']} recovers day {case['recovery_day']}, ep{case['episode_2']} starts day {case['reinfection_day']}")
+    
+    return same_day_cases
+
+def validate_episode_assignments(transmission_df_with_episodes):
+    """Quick validation to make sure episode assignments make sense"""
+    
+    print("\n=== VALIDATING EPISODE ASSIGNMENTS ===")
+    
+    # Check that all transmissions have valid episode assignments
+    missing_infectee_episodes = transmission_df_with_episodes[
+        transmission_df_with_episodes['infectee_episode'] == 0
+    ]
+    missing_infector_episodes = transmission_df_with_episodes[
+        transmission_df_with_episodes['infector_episode'] == 0
+    ]
+    
+    print(f"Missing infectee episodes: {len(missing_infectee_episodes)}")
+    print(f"Missing infector episodes: {len(missing_infector_episodes)}")
+    
+    if len(missing_infectee_episodes) > 0:
+        print("First few missing infectee episodes:")
+        print(missing_infectee_episodes[['infector_node', 'infectee_node', 'day_of_transmission']].head())
+    
+    if len(missing_infector_episodes) > 0:
+        print("First few missing infector episodes:")
+        print(missing_infector_episodes[['infector_node', 'infectee_node', 'day_of_transmission']].head())
+    
+    # Check episode numbering is sequential for each infectee
+    print("\nChecking sequential episode numbering...")
+    non_sequential = 0
+    
+    for node_id, group in transmission_df_with_episodes.groupby('infectee_node'):
+        episodes = sorted(group['infectee_episode'].unique())
+        expected = list(range(1, len(episodes) + 1))
+        if episodes != expected:
+            non_sequential += 1
+            if non_sequential <= 3:  # Show first few cases
+                print(f"  Node {node_id}: episodes {episodes}, expected {expected}")
+    
+    if non_sequential > 0:
+        print(f"Found {non_sequential} nodes with non-sequential episode numbering")
+    else:
+        print("All episode numbering is sequential ✓")
+
+def build_hybrid_transmission_tree_with_episodes(rootnode, roottime, rootdur, transmission_df_with_episodes, cutoff_day):
+    print(f"Building episode-aware hybrid tree...")
+    print(f"Root: {rootnode}, time: {roottime}, duration: {rootdur}, cutoff: {cutoff_day}")
+    
+    # DEBUG: Track what gets filtered at each step
+    print(f"DEBUG: Input transmission_df_with_episodes: {len(transmission_df_with_episodes)}")
+    
+    # Filter out superseded transmissions
+    active_transmissions = transmission_df_with_episodes[
+        transmission_df_with_episodes['superseded_simultaneous'] == False
+    ].copy()
+    print(f"DEBUG: After superseded filter: {len(active_transmissions)}")
+    
+    # Check post-burn-in transmissions
+    post_burnin = active_transmissions[active_transmissions['day_of_transmission'] >= cutoff_day]
+    print(f"DEBUG: Post-burn-in transmissions (>= {cutoff_day}): {len(post_burnin)}")
+    
+    # Check those with sampling dates
+    with_sampling = active_transmissions[pd.notna(active_transmissions['day_of_sampling'])]
+    print(f"DEBUG: With sampling dates: {len(with_sampling)}")
+    
+    # Check both conditions
+    post_burnin_with_sampling = active_transmissions[
+        (active_transmissions['day_of_transmission'] >= cutoff_day) &
+        (pd.notna(active_transmissions['day_of_sampling']))
+    ]
+    print(f"DEBUG: Post-burn-in WITH sampling: {len(post_burnin_with_sampling)}")
+    
+    print(f"Active transmissions: {len(active_transmissions)}")
+
+    """Build tree with episode-aware node labels"""
+    
+    print(f"Building episode-aware hybrid tree...")
+    print(f"Root: {rootnode}, time: {roottime}, duration: {rootdur}, cutoff: {cutoff_day}")
+    
+    # Filter out superseded transmissions
+    active_transmissions = transmission_df_with_episodes[
+        transmission_df_with_episodes['superseded_simultaneous'] == False
+    ].copy()
+    
+    print(f"Active transmissions: {len(active_transmissions)}")
+    
+    # Initialize tree with episode-aware root
+    tree, root = initialize_tree_with_episode(rootnode, roottime, episode=1)
+    node_dict = {f"{rootnode}_{roottime}_ep1": root}
+    
+    print("Building burn-in topology with episodes...")
+    
+    # Build with episode awareness
+    build_burnin_topology_with_episodes(
+        node_id=rootnode,
+        episode=1,
+        start_time=roottime,
+        end_time=min(roottime + rootdur -1, cutoff_day),
+        parent_node=root,
+        transmission_df=active_transmissions,
+        node_dict=node_dict,
+        cutoff_day=cutoff_day
+    )
+    
+    print(f"Tree building complete! Final node count: {len(node_dict)}")
+    return tree, node_dict
+
+def initialize_tree_with_episode(rootnode, roottime, episode):
+    """Initialize tree with episode-aware root label"""
+    label = f"{rootnode}_{roottime}_ep{episode}"
+    root = dendropy.Node(label=label)
+    tree = dendropy.Tree()
+    tree.seed_node = root
+    return tree, root
+
+def build_burnin_topology_with_episodes(node_id, episode, start_time, end_time, parent_node, transmission_df, node_dict, cutoff_day):
+    """Build burn-in topology with episode awareness"""
+    
+    # Find transmissions from this specific node/episode
+    transmissions = transmission_df[
+        (transmission_df['infector_node'] == node_id) &
+        (transmission_df['infector_episode'] == episode) &
+        (transmission_df['day_of_transmission'] >= start_time) &
+        (transmission_df['day_of_transmission'] <= end_time) &
+        (pd.notna(transmission_df['day_of_sampling']))
+    ].copy()
+
+    
+    for _, row in transmissions.iterrows():
+        infectee = row['infectee_node']
+        infectee_episode = row['infectee_episode']
+        tx_day = int(row['day_of_transmission'])
+        sample_day = int(row['day_of_sampling'])
+        
+        if sample_day < cutoff_day:
+            # ... existing burn-in logic with debug
+            infectee_label = f"{infectee}_{tx_day}_ep{infectee_episode}"
+            
+            if infectee_label in node_dict:
+                print(f"WARNING: Episode node {infectee_label} already exists, skipping...")
+                continue
+                
+            taxon = taxa.new_taxon(infectee_label)
+            infectee_node = dendropy.Node(taxon=taxon)
+            infectee_node.edge_length = tx_day - start_time
+            parent_node.add_child(infectee_node)
+            node_dict[infectee_label] = infectee_node
+            
+            # Recursively build this episode
+            build_burnin_topology_with_episodes(
+                node_id=infectee,
+                episode=infectee_episode,
+                start_time=tx_day,
+                end_time=sample_day,
+                parent_node=infectee_node,
+                transmission_df=transmission_df,
+                node_dict=node_dict,
+                cutoff_day=cutoff_day
+            )
+        else:
+            # Transition to post-burn-in with episodes
+            print(f"  -> Transitioning infection {infectee}_ep{infectee_episode} from burn-in to daily chains")
+            create_transition_node_with_episodes(
+                infectee=infectee,
+                infectee_episode=infectee_episode,
+                tx_day=tx_day,
+                sample_day=sample_day,
+                parent_node=parent_node,
+                start_time=start_time,
+                transmission_df=transmission_df,
+                node_dict=node_dict,
+                cutoff_day=cutoff_day
+            )
+            
+
+def create_transition_node_with_episodes(infectee, infectee_episode, tx_day, sample_day, parent_node, start_time, transmission_df, node_dict, cutoff_day):
+    """Handle transition with episode awareness"""
+    
+    # Create initial episode node
+    infectee_label = f"{infectee}_{tx_day}_ep{infectee_episode}"
+    
+    if infectee_label in node_dict:
+        print(f"WARNING: Transition episode node {infectee_label} already exists, skipping...")
+        return
+        
+    taxon = taxa.new_taxon(infectee_label)
+    infectee_node = dendropy.Node(taxon=taxon)
+    infectee_node.edge_length = tx_day - start_time
+    parent_node.add_child(infectee_node)
+    node_dict[infectee_label] = infectee_node
+    
+    # Handle any burn-in transmissions from this episode
+    burnin_transmissions = transmission_df[
+        (transmission_df['infector_node'] == infectee) &
+        (transmission_df['infector_episode'] == infectee_episode) &
+        (transmission_df['day_of_transmission'] >= tx_day) &
+        (transmission_df['day_of_transmission'] <= cutoff_day) &
+        (pd.notna(transmission_df['day_of_sampling']))
+    ]
+    
+    for _, row in burnin_transmissions.iterrows():
+        sub_infectee = row['infectee_node'] 
+        sub_infectee_episode = row['infectee_episode']
+        sub_tx_day = int(row['day_of_transmission'])
+        sub_sample_day = int(row['day_of_sampling'])
+        
+        if sub_sample_day < cutoff_day:
+            build_burnin_topology_with_episodes(
+                node_id=sub_infectee,
+                episode=sub_infectee_episode,
+                start_time=sub_tx_day,
+                end_time=sub_sample_day,
+                parent_node=infectee_node,
+                transmission_df=transmission_df,
+                node_dict=node_dict,
+                cutoff_day=cutoff_day
+            )
+        else:
+            create_transition_node_with_episodes(
+                infectee=sub_infectee,
+                infectee_episode=sub_infectee_episode,
+                tx_day=sub_tx_day,
+                sample_day=sub_sample_day,
+                parent_node=infectee_node,
+                start_time=tx_day,
+                transmission_df=transmission_df,
+                node_dict=node_dict,
+                cutoff_day=cutoff_day
+            )
+    
+    # Switch to daily chains for post-cutoff
+    if sample_day > cutoff_day:
+        print(f"    Switching to daily chains for {infectee}_ep{infectee_episode} from day {cutoff_day} to {sample_day}")
+        build_chain_with_episodes(
+            node_id=infectee,
+            episode=infectee_episode,
+            start_time=cutoff_day,
+            end_time=sample_day,
+            parent_node=infectee_node,
+            transmission_df=transmission_df,
+            node_dict=node_dict
+        )
+
+def build_chain_with_episodes(node_id, episode, start_time, end_time, parent_node, transmission_df, node_dict):
+    """Build daily chains with episode-aware labels"""
+    current_node = parent_node
+
+    for t in range(start_time + 1, end_time + 1):
+        # Create episode-aware daily node
+        label = f"{node_id}_{t}_ep{episode}"
+        
+        if label in node_dict:
+            current_node = node_dict[label]
+            continue
+            
+        taxon = taxa.new_taxon(label)
+        child = dendropy.Node(taxon=taxon)
+        child.edge_length = 1
+        current_node.add_child(child)
+        node_dict[label] = child
+        current_node = child
+
+        # Handle transmissions from this episode at this time
+        transmissions = transmission_df[
+            (transmission_df['infector_node'] == node_id) &
+            (transmission_df['infector_episode'] == episode) &
+            (transmission_df['day_of_transmission'] == t)
+        ]
+
+        for _, row in transmissions.iterrows():
+            if pd.isna(row.get("day_of_sampling")):
+                continue
+
+            infectee = row['infectee_node']
+            infectee_episode = row['infectee_episode']
+            infect_time = t
+            sample_time = int(row['day_of_sampling'])
+
+            # Create infectee node with episode
+            infectee_label = f"{infectee}_{infect_time}_ep{infectee_episode}"
+            
+            if infectee_label in node_dict:
+                continue
+                
+            taxon = taxa.new_taxon(infectee_label)
+            infectee_node = dendropy.Node(taxon=taxon)
+            infectee_node.edge_length = 1
+            current_node.add_child(infectee_node)
+            node_dict[infectee_label] = infectee_node
+
+            # Recursively build infectee's episode chain
+            build_chain_with_episodes(
+                node_id=infectee,
+                episode=infectee_episode,
+                start_time=infect_time,
+                end_time=sample_time,
+                parent_node=infectee_node,
+                transmission_df=transmission_df,
+                node_dict=node_dict
+            )
+
+def track_missing_episodes(transmission_df_with_episodes, node_dict, cutoff_day):
+    """Track which specific episodes were expected but not built"""
+    
+    print(f"\n🔍 TRACKING MISSING EPISODES")
+    print("=" * 50)
+    
+    # Get expected episodes (post-burn-in with sampling)
+    expected_episodes_df = transmission_df_with_episodes[
+        (transmission_df_with_episodes['superseded_simultaneous'] == False) &
+        (transmission_df_with_episodes['day_of_transmission'] >= cutoff_day) &
+        (pd.notna(transmission_df_with_episodes['day_of_sampling']))
+    ]
+    
+    # Create set of expected episodes
+    expected_episodes = set()
+    for _, row in expected_episodes_df.iterrows():
+        node_id = row['infectee_node']
+        episode = row['infectee_episode']
+        tx_day = row['day_of_transmission']
+        sample_day = row['day_of_sampling']
+        expected_episodes.add((node_id, episode, tx_day, sample_day))
+    
+    print(f"Expected episodes: {len(expected_episodes)}")
+    
+    # Get built episodes from tree
+    built_episodes = set()
+    for label in node_dict.keys():
+        # Parse episode from label like "9973_13355_ep289"  
+        parts = label.split('_')
+        if len(parts) >= 3 and parts[-1].startswith('ep'):
+            try:
+                node_id = int(parts[0])
+                day = int(parts[1]) 
+                episode = int(parts[-1][2:])
+                # Only count post-burn-in tips (final sampling day)
+                if day >= cutoff_day:
+                    # Find if this corresponds to a sampling day (tip)
+                    matching = expected_episodes_df[
+                        (expected_episodes_df['infectee_node'] == node_id) &
+                        (expected_episodes_df['infectee_episode'] == episode) &
+                        (expected_episodes_df['day_of_sampling'] == day)
+                    ]
+                    if len(matching) > 0:
+                        row = matching.iloc[0]
+                        built_episodes.add((node_id, episode, int(row['day_of_transmission']), day))
+            except:
+                continue
+    
+    print(f"Built episodes: {len(built_episodes)}") 
+    
+    # Find missing episodes
+    missing_episodes = expected_episodes - built_episodes
+    print(f"Missing episodes: {len(missing_episodes)}")
+    
+    if len(missing_episodes) > 0:
+        print(f"\nFirst 10 missing episodes:")
+        for i, (node_id, episode, tx_day, sample_day) in enumerate(sorted(missing_episodes)[:10]):
+            print(f"  {i+1}. Node {node_id}, Episode {episode}: tx={tx_day}, sample={sample_day}")
+        
+        # Check for patterns
+        missing_nodes = [ep[0] for ep in missing_episodes]
+        missing_episodes_nums = [ep[1] for ep in missing_episodes]
+        
+        print(f"\nMissing episode patterns:")
+        print(f"  Unique nodes with missing episodes: {len(set(missing_nodes))}")
+        print(f"  Episode number range: {min(missing_episodes_nums)} - {max(missing_episodes_nums)}")
+        
+        # Check for same-day patterns
+        same_day_missing = 0
+        for node_id, episode, tx_day, sample_day in missing_episodes:
+            if tx_day == sample_day:
+                same_day_missing += 1
+        
+        print(f"  Same-day infections (tx=sample): {same_day_missing}")
+    
+    return missing_episodes
+
+
+def build_and_save_episode_tree_CORRECTED(results_obj, root_node, root_time, root_dur, cutoff_day, output_dir):
+    """Complete pipeline"""
+    
+    print(f"=" * 60)
+    print(f"BUILDING EPISODE TREE FOR ROOT NODE {root_node}")
+    print(f"Root time: {root_time}, Duration: {root_dur}, Cutoff: {cutoff_day}")
+    print(f"Output directory: {output_dir}")
+    print(f"=" * 60)
+    
+    try:
+        # Step 1: Assign episode numbers using proven lineage episodes
+        print("\n🔢 Step 1: Assigning episode numbers from proven lineage episodes...")
+        lineage_episodes_file = os.path.join(output_dir, "lineage_episodes.json")
+        transmission_df_with_episodes = assign_episode_numbers_from_lineage(
+            transmission_df=results_obj['transmission_df'],
+            initial_infectors=results_obj['initial_infectors'],
+            lineage_episodes_file=lineage_episodes_file
+)
+        # Step 2: Validate episode assignments
+        print("\n✅ Step 2: Validating episode assignments...")
+        validate_episode_assignments(transmission_df_with_episodes)
+        
+        # Step 3: Test episode assignments on sample nodes
+        print("\n🧪 Step 3: Testing episode assignments on sample nodes...")
+        sample_nodes = list(transmission_df_with_episodes['infectee_node'].unique())[:5]
+        test_episode_assignments(transmission_df_with_episodes, test_nodes=sample_nodes)
+        
+        # Step 4: Check same-day reinfections
+        print("\n🔄 Step 4: Checking same-day reinfections...")
+        same_day_cases = check_same_day_reinfections_episodes(transmission_df_with_episodes)
+        print(f"Same-day reinfection cases found: {len(same_day_cases)}")
+        
+        # Step 5: Build the episode-aware tree (now with debug logging)
+        print("\n🌳 Step 5: Building episode-aware hybrid tree...")
+        episode_tree, episode_node_dict = build_hybrid_transmission_tree_with_episodes(
+            rootnode=root_node,
+            roottime=root_time,
+            rootdur=root_dur,
+            transmission_df_with_episodes=transmission_df_with_episodes,
+            cutoff_day=cutoff_day
+        )
+        
+        print(f"Episode tree built successfully!")
+        print(f"Total nodes in tree: {len(episode_node_dict)}")
+
+        # Step 5.5: Track missing episodes
+        missing_episodes = track_missing_episodes(transmission_df_with_episodes, episode_node_dict, cutoff_day)
+        
+        # Step 6: Save tree to file
+        print("\n💾 Step 6: Saving tree to file...")
+        
+        # Create output directory if it doesn't exist
+        os.makedirs(output_dir, exist_ok=True)
+        
+        # Generate filename based on root node
+        filename = f"tree_{root_node}_hybrid_episodes.newick"
+        filepath = os.path.join(output_dir, filename)
+        
+        # Write tree
+        episode_tree.write(
+            path=filepath,
+            schema="newick",
+            suppress_internal_node_labels=False,
+            suppress_leaf_node_labels=False
+        )
+        
+        print(f"Episode tree saved to: {filepath}")
+        
+        # Step 7: Check for post-burn-in nodes
+        print(f"\n🎯 Step 7: Checking for post-burn-in nodes...")
+        
+        post_burnin_tips = []
+        burnin_tips = []
+        
+        for leaf in episode_tree.leaf_node_iter():
+            if leaf.taxon and leaf.taxon.label:
+                tip_label = leaf.taxon.label
+                try:
+                    parts = tip_label.split('_')
+                    day = int(parts[1])
+                    if day >= cutoff_day:
+                        post_burnin_tips.append(tip_label)
+                    else:
+                        burnin_tips.append(tip_label)
+                except:
+                    continue
+        
+        print(f"Burn-in tips: {len(burnin_tips)}")
+        print(f"Post-burn-in tips: {len(post_burnin_tips)}")
+        
+        if len(post_burnin_tips) > 0:
+            print(f"✅ SUCCESS! Post-burn-in tips found:")
+            for tip in post_burnin_tips[:10]:
+                print(f"   {tip}")
+            if len(post_burnin_tips) > 10:
+                print(f"   ... and {len(post_burnin_tips) - 10} more")
+        else:
+            print(f"❌ No post-burn-in tips found - tree still stops at burn-in")
+        
+        # Return summary information
+        summary = {
+            'root_node': root_node,
+            'root_time': root_time,
+            'root_dur': root_dur,
+            'cutoff_day': cutoff_day,
+            'total_transmissions': len(transmission_df_with_episodes),
+            'total_tree_nodes': len(episode_node_dict),
+            'burnin_tips': len(burnin_tips),
+            'post_burnin_tips': len(post_burnin_tips),
+            'same_day_reinfections': len(same_day_cases),
+            'output_file': filepath,
+            'tree': episode_tree,
+            'node_dict': episode_node_dict,
+            'transmission_df_with_episodes': transmission_df_with_episodes
+        }
+        
+        print(f"\n🎉 COMPLETE! Tree for root node {root_node} saved successfully.")
+        print(f"📊 Summary:")
+        print(f"   - Total transmissions: {summary['total_transmissions']}")
+        print(f"   - Tree nodes: {summary['total_tree_nodes']}")
+        print(f"   - Burn-in tips: {summary['burnin_tips']}")
+        print(f"   - Post-burn-in tips: {summary['post_burnin_tips']}")
+        print(f"   - Same-day reinfections: {summary['same_day_reinfections']}")
+        print(f"   - Output file: {filename}")
+        
+        return summary
+    
+    except Exception as e:
+        print(f"❌ Tree building failed: {e}")
+        import traceback
+        traceback.print_exc()
+        raise
+
+# ========== DATA LOADING FUNCTIONS ==========
+
+def load_simulation_data(output_dir):
+    """Load simulation data from output directory"""
+    print(f"Loading simulation data from: {output_dir}")
+    
+    # Load core files
+    transmission_df = pd.read_csv(os.path.join(output_dir, "transmission_df.csv"))
+    nodes_df = pd.read_csv(os.path.join(output_dir, "nodes_df.csv"), index_col=0)
+    
+    # Load initial infectors
+    try:
+        initial_infectors_df = pd.read_csv(os.path.join(output_dir, "initial_infectors.csv"))
+        initial_infectors = list(zip(initial_infectors_df['node_id'], 
+                                   initial_infectors_df['remaining_days_infectious']))
+    except FileNotFoundError:
+        raise FileNotFoundError(f"initial_infectors.csv not found in {output_dir}")
+    
+    # Get parameters
+    try:
+        with open(os.path.join(output_dir, "parameters_used.json"), 'r') as f:
+            params = json.load(f)
+        
+        initial_infectors_day = params['simulation']['partnership_burnin_days']
+        tracking_start_day = (params['simulation']['partnership_burnin_days'] + 
+                            params['simulation']['transmission_burnin_days'])
+    except FileNotFoundError:
+        raise FileNotFoundError(f"parameters_used.json not found in {output_dir}")
+    
+    # Convert nodes_df to dict format expected by tree functions
+    nodes_dict = nodes_df.to_dict('index')
+    
+    print(f"Loaded:")
+    print(f"  Transmissions: {len(transmission_df)}")
+    print(f"  Nodes: {len(nodes_dict)}")
+    print(f"  Initial infectors: {len(initial_infectors)}")
+    print(f"  Initial infectors day: {initial_infectors_day}")
+    print(f"  Tracking start day: {tracking_start_day}")
+    
+    return transmission_df, nodes_dict, initial_infectors, initial_infectors_day, tracking_start_day
+
+def load_lineage_results(output_dir):
+    """Load lineage assessment results"""
+    try:
+        with open(os.path.join(output_dir, "lineage_test_results.json"), 'r') as f:
+            results = json.load(f)
+        
+        print(f"Lineage assessment results:")
+        print(f"  Single lineage: {results['single_lineage']}")
+        if results['single_lineage']:
+            print(f"  Dominant lineage: {results['dominant_lineage']}")
+            print(f"  Dominance fraction: {results['dominant_fraction']:.3f}")
+        
+        return results
+        
+    except FileNotFoundError:
+        raise FileNotFoundError(f"lineage_test_results.json not found in {output_dir}. Run lineage assessment first.")
+
+def reconstruct_sim_results(transmission_df, nodes_dict, initial_infectors):
+    """Reconstruct sim_results object that build_and_save_episode_tree_CORRECTED expects"""
+    
+    sim_results = {
+        'transmission_df': transmission_df,
+        'nodes_dict': nodes_dict,
+        'initial_infectors': initial_infectors
+    }
+    
+    return sim_results
+
+# ========== CREATE ANNOTATION RINGS ==========
+def create_all_episode_aware_colorstrips(tree, nodes_dict, transmission_df_with_episodes, cutoff_day, base_output_dir):
+    """Create all iTOL colorstrip annotations for episode-aware tree"""
+    
+    # Create subfolder
+    rings_dir = os.path.join(base_output_dir, "itol_annotation_rings")
+    os.makedirs(rings_dir, exist_ok=True)
+    
+    print(f"Creating iTOL annotation rings in: {rings_dir}")
+    
+    # Get all tip labels from tree
+    tip_labels = [str(leaf.taxon.label).strip("'\"") for leaf in tree.leaf_node_iter()]
+    print(f"Processing {len(tip_labels)} tips...")
+    
+    # Create each ring
+    create_burnin_colorstrip_episode(tip_labels, cutoff_day, os.path.join(rings_dir, "01_burnin_period.txt"))
+    create_behavior_colorstrip_episode(tip_labels, nodes_dict, os.path.join(rings_dir, "02_behavior.txt"))
+    create_activity_colorstrip_episode(tip_labels, nodes_dict, os.path.join(rings_dir, "03_activity_level.txt"))
+    create_partnership_type_colorstrip_episode(tip_labels, transmission_df_with_episodes, cutoff_day, os.path.join(rings_dir, "04_partnership_type.txt"))
+    create_behavior_pair_colorstrip_episode(tip_labels, transmission_df_with_episodes, cutoff_day, os.path.join(rings_dir, "05_behavior_pairs.txt"))
+    create_transmission_direction_colorstrip_episode(tip_labels, transmission_df_with_episodes, cutoff_day, os.path.join(rings_dir, "06_transmission_direction.txt"))
+    create_unique_node_colorstrip_episode(tip_labels, os.path.join(rings_dir, "07_unique_individuals.txt"))
+    create_episode_number_colorstrip_episode(tip_labels, os.path.join(rings_dir, "08_episode_numbers.txt"))
+    
+    print("All colorstrip rings created successfully!")
+
+def parse_episode_label(label):
+    """Parse episode-aware labels like 'node_day_epX' into components"""
+    try:
+        parts = label.split('_')
+        if len(parts) >= 3 and parts[-1].startswith('ep'):
+            node_id = int(parts[0])
+            day_value = int(parts[1])
+            episode = int(parts[-1][2:])  # Remove 'ep' prefix
+            return node_id, day_value, episode
+        else:
+            return None, None, None
+    except (ValueError, IndexError):
+        return None, None, None
+
+def create_burnin_colorstrip_episode(tip_labels, cutoff_day, output_path):
+    """Ring 1: Pre/post burn-in period"""
+    
+    with open(output_path, 'w') as f:
+        f.write("DATASET_COLORSTRIP\n")
+        f.write("SEPARATOR TAB\n")
+        f.write("DATASET_LABEL\tBurn-in Period\n")
+        f.write("COLOR\t#000000\n")
+        f.write("LEGEND_TITLE\tPeriod\n")
+        f.write("LEGEND_SHAPES\t1\t1\n")
+        f.write("LEGEND_COLORS\t#FF6B6B\t#4ECDC4\n")
+        f.write("LEGEND_LABELS\tBurn-in\tPost-burn-in\n")
+        f.write("DATA\n")
+        
+        for label in tip_labels:
+            node_id, day_value, episode = parse_episode_label(label)
+            
+            if day_value is not None:
+                if day_value < cutoff_day:
+                    color = "#FF6B6B"  # Red for burn-in
+                    period = "Burn-in"
+                else:
+                    color = "#4ECDC4"  # Teal for post-burn-in
+                    period = "Post-burn-in"
+                f.write(f"'{label}'\t{color}\t{period}\n")
+            else:
+                f.write(f"'{label}'\t#CCCCCC\tUnknown\n")
+    
+    print(f"Burn-in period colorstrip saved to: {output_path}")
+
+def create_behavior_colorstrip_episode(tip_labels, nodes_dict, output_path):
+    """Ring 2: Behavior group (WSM, MSW, MSM, MSMW)"""
+    
+    behavior_colors = {
+        'WSM': '#E74C3C',    # Red
+        'MSW': '#3498DB',    # Blue  
+        'MSM': '#2ECC71',    # Green
+        'MSMW': '#F39C12'    # Orange
+    }
+    
+    with open(output_path, 'w') as f:
+        f.write("DATASET_COLORSTRIP\n")
+        f.write("SEPARATOR TAB\n")
+        f.write("DATASET_LABEL\tBehavior Group\n")
+        f.write("COLOR\t#000000\n")
+        f.write("LEGEND_TITLE\tBehavior\n")
+        f.write("LEGEND_SHAPES\t1\t1\t1\t1\n")
+        f.write("LEGEND_COLORS\t#E74C3C\t#3498DB\t#2ECC71\t#F39C12\n")
+        f.write("LEGEND_LABELS\tWSM\tMSW\tMSM\tMSMW\n")
+        f.write("DATA\n")
+        
+        for label in tip_labels:
+            node_id, day_value, episode = parse_episode_label(label)
+            
+            if node_id is not None:
+                behavior = nodes_dict.get(node_id, {}).get('behavior', 'Unknown')
+                color = behavior_colors.get(behavior, '#CCCCCC')
+                f.write(f"'{label}'\t{color}\t{behavior}\n")
+            else:
+                f.write(f"'{label}'\t#CCCCCC\tUnknown\n")
+    
+    print(f"Behavior colorstrip saved to: {output_path}")
+
+def create_activity_colorstrip_episode(tip_labels, nodes_dict, output_path):
+    """Ring 3: Activity level (hi/lo risk)"""
+    
+    risk_colors = {
+        1: '#8E44AD',    # Purple for high risk
+        0: '#95A5A6'     # Gray for low risk
+    }
+    
+    with open(output_path, 'w') as f:
+        f.write("DATASET_COLORSTRIP\n")
+        f.write("SEPARATOR TAB\n")
+        f.write("DATASET_LABEL\tActivity Level\n")
+        f.write("COLOR\t#000000\n")
+        f.write("LEGEND_TITLE\tActivity\n")
+        f.write("LEGEND_SHAPES\t1\t1\n")
+        f.write("LEGEND_COLORS\t#8E44AD\t#95A5A6\n")
+        f.write("LEGEND_LABELS\tHigh\tLow\n")
+        f.write("DATA\n")
+        
+        for label in tip_labels:
+            node_id, day_value, episode = parse_episode_label(label)
+            
+            if node_id is not None:
+                hi_risk = nodes_dict.get(node_id, {}).get('hi_risk', 0)
+                color = risk_colors.get(hi_risk, '#CCCCCC')
+                risk_label = 'High' if hi_risk == 1 else 'Low'
+                f.write(f"'{label}'\t{color}\t{risk_label}\n")
+            else:
+                f.write(f"'{label}'\t#CCCCCC\tUnknown\n")
+    
+    print(f"Activity level colorstrip saved to: {output_path}")
+
+def create_partnership_type_colorstrip_episode(tip_labels, transmission_df_with_episodes, cutoff_day, output_path):
+    """Ring 4: Steady vs Casual partnership"""
+    
+    partnership_colors = {
+        'steady': '#27AE60',     # Green for steady
+        'casual': '#E67E22'      # Orange for casual
+    }
+    
+    with open(output_path, 'w') as f:
+        f.write("DATASET_COLORSTRIP\n")
+        f.write("SEPARATOR TAB\n")
+        f.write("DATASET_LABEL\tPartnership Type\n")
+        f.write("COLOR\t#000000\n")
+        f.write("LEGEND_TITLE\tPartnership\n")
+        f.write("LEGEND_SHAPES\t1\t1\n")
+        f.write("LEGEND_COLORS\t#27AE60\t#E67E22\n")
+        f.write("LEGEND_LABELS\tSteady\tCasual\n")
+        f.write("DATA\n")
+        
+        for label in tip_labels:
+            node_id, day_value, episode = parse_episode_label(label)
+            
+            if node_id is not None and episode is not None:
+                # Find transmission event by matching node and episode
+                tx_event = transmission_df_with_episodes[
+                    (transmission_df_with_episodes['infectee_node'] == node_id) &
+                    (transmission_df_with_episodes['infectee_episode'] == episode)
+                ]
+                
+                if not tx_event.empty:
+                    partnership = tx_event.iloc[0]['partnership_category']
+                    color = partnership_colors.get(partnership, '#CCCCCC')
+                    f.write(f"'{label}'\t{color}\t{partnership.title()}\n")
+                else:
+                    f.write(f"'{label}'\t#CCCCCC\tUnknown\n")
+            else:
+                f.write(f"'{label}'\t#CCCCCC\tUnknown\n")
+    
+    print(f"Partnership type colorstrip saved to: {output_path}")
+
+def create_behavior_pair_colorstrip_episode(tip_labels, transmission_df_with_episodes, cutoff_day, output_path):
+    """Ring 5: Behavior pair combinations (MSW-WSM, etc.)"""
+    
+    pair_colors = {
+        'MSW-WSM': '#E74C3C',    'WSM-MSW': '#E74C3C',
+        'MSM-MSM': '#2ECC71',    'MSM-MSMW': '#F39C12',   'MSMW-MSM': '#F39C12',
+        'MSMW-MSMW': '#9B59B6',  'MSMW-WSM': '#1ABC9C',   'WSM-MSMW': '#1ABC9C',
+        'MSW-MSMW': '#34495E',   'MSMW-MSW': '#34495E'
+    }
+    
+    with open(output_path, 'w') as f:
+        f.write("DATASET_COLORSTRIP\n")
+        f.write("SEPARATOR TAB\n")
+        f.write("DATASET_LABEL\tBehavior Pair\n")
+        f.write("COLOR\t#000000\n")
+        f.write("LEGEND_TITLE\tBehavior Pairs\n")
+        f.write("LEGEND_SHAPES\t1\t1\t1\t1\t1\t1\n")
+        f.write("LEGEND_COLORS\t#E74C3C\t#2ECC71\t#F39C12\t#9B59B6\t#1ABC9C\t#34495E\n")
+        f.write("LEGEND_LABELS\tMSW-WSM\tMSM-MSM\tMSM-MSMW\tMSMW-MSMW\tMSMW-WSM\tMSW-MSMW\n")
+        f.write("DATA\n")
+        
+        for label in tip_labels:
+            node_id, day_value, episode = parse_episode_label(label)
+            
+            if node_id is not None and episode is not None:
+                tx_event = transmission_df_with_episodes[
+                    (transmission_df_with_episodes['infectee_node'] == node_id) &
+                    (transmission_df_with_episodes['infectee_episode'] == episode)
+                ]
+                
+                if not tx_event.empty:
+                    infector_behavior = tx_event.iloc[0]['behavior_infector']
+                    infectee_behavior = tx_event.iloc[0]['behavior_infectee']
+                    pair = f"{infector_behavior}-{infectee_behavior}"
+                    color = pair_colors.get(pair, '#CCCCCC')
+                    f.write(f"'{label}'\t{color}\t{pair}\n")
+                else:
+                    f.write(f"'{label}'\t#CCCCCC\tUnknown\n")
+            else:
+                f.write(f"'{label}'\t#CCCCCC\tUnknown\n")
+    
+    print(f"Behavior pair colorstrip saved to: {output_path}")
+
+def create_transmission_direction_colorstrip_episode(tip_labels, transmission_df_with_episodes, cutoff_day, output_path):
+    """
+    Ring 6: Direction of transmission (UPDATED to distinguish direction)
+    Now WSM->MSW is different from MSW->WSM, etc.
+    """
+    
+    # UPDATED: Directional colors - each direction gets its own color
+    direction_colors = {
+        # WSM interactions (WSM as infector vs infectee)
+        'WSM to MSW': '#E74C3C',      # Red - WSM infecting MSW
+        'MSW to WSM': '#C0392B',      # Darker red - MSW infecting WSM
+        'WSM to MSMW': '#1ABC9C',     # Teal - WSM infecting MSMW  
+        'MSMW to WSM': '#16A085',     # Darker teal - MSMW infecting WSM
+        
+        # MSM interactions
+        'MSM to MSM': '#2ECC71',      # Green - MSM to MSM
+        'MSM to MSMW': '#F39C12',     # Orange - MSM infecting MSMW
+        'MSMW to MSM': '#E67E22',     # Darker orange - MSMW infecting MSM
+        
+        # MSMW interactions (additional)
+        'MSMW to MSMW': '#9B59B6',    # Purple - MSMW to MSMW
+        
+        # MSW interactions (additional - if they occur)
+        'MSW to MSMW': '#34495E',     # Dark blue - MSW infecting MSMW
+        'MSMW to MSW': '#2C3E50'      # Darker blue - MSMW infecting MSW
+    }
+    
+    with open(output_path, 'w') as f:
+        f.write("DATASET_COLORSTRIP\n")
+        f.write("SEPARATOR TAB\n")
+        f.write("DATASET_LABEL\tTransmission Direction\n")
+        f.write("COLOR\t#000000\n")
+        f.write("LEGEND_TITLE\tDirection\n")
+        
+        # Update legend to show more directions
+        legend_colors = ['#E74C3C', '#C0392B', '#1ABC9C', '#16A085', '#2ECC71', 
+                        '#F39C12', '#E67E22', '#9B59B6', '#34495E', '#2C3E50']
+        legend_labels = ['WSM→MSW', 'MSW→WSM', 'WSM→MSMW', 'MSMW→WSM', 'MSM→MSM',
+                        'MSM→MSMW', 'MSMW→MSM', 'MSMW→MSMW', 'MSW→MSMW', 'MSMW→MSW']
+        
+        f.write(f"LEGEND_SHAPES\t" + "\t".join(['1'] * len(legend_colors)) + "\n")
+        f.write(f"LEGEND_COLORS\t" + "\t".join(legend_colors) + "\n")
+        f.write(f"LEGEND_LABELS\t" + "\t".join(legend_labels) + "\n")
+        f.write("DATA\n")
+        
+        for label in tip_labels:
+            node_id, day_value, episode = parse_episode_label(label)
+            
+            if node_id is not None and episode is not None:
+                tx_event = transmission_df_with_episodes[
+                    (transmission_df_with_episodes['infectee_node'] == node_id) &
+                    (transmission_df_with_episodes['infectee_episode'] == episode)
+                ]
+                
+                if not tx_event.empty:
+                    infector_behavior = tx_event.iloc[0]['behavior_infector']
+                    infectee_behavior = tx_event.iloc[0]['behavior_infectee']
+                    
+                    # UPDATED: Create directional pair (infector -> infectee)
+                    direction = f"{infector_behavior} to {infectee_behavior}"
+                    color = direction_colors.get(direction, '#CCCCCC')
+                    f.write(f"'{label}'\t{color}\t{direction}\n")
+                else:
+                    f.write(f"'{label}'\t#CCCCCC\tUnknown\n")
+            else:
+                f.write(f"'{label}'\t#CCCCCC\tUnknown\n")
+    
+    print(f"Directional transmission colorstrip saved to: {output_path}")
+
+def create_unique_node_colorstrip_episode(tip_labels, output_path):
+    """Ring 7: Unique individuals (each person gets different color)"""
+    
+    # Get unique node IDs
+    unique_nodes = set()
+    for label in tip_labels:
+        node_id, day_value, episode = parse_episode_label(label)
+        if node_id is not None:
+            unique_nodes.add(node_id)
+    
+    unique_nodes = sorted(list(unique_nodes))
+    
+    # Generate colors using hash for consistency
+    def node_to_color(node_id):
+        hash_val = hash(str(node_id)) % 16777215  # 24-bit color space
+        hex_color = f"#{hash_val:06X}"
+        return hex_color
+    
+    node_colors = {node_id: node_to_color(node_id) for node_id in unique_nodes}
+    
+    with open(output_path, 'w') as f:
+        f.write("DATASET_COLORSTRIP\n")
+        f.write("SEPARATOR TAB\n")
+        f.write("DATASET_LABEL\tUnique Individuals\n")
+        f.write("COLOR\t#000000\n")
+        f.write("LEGEND_TITLE\tIndividuals\n")
+        f.write("LEGEND_SHAPES\t1\n")
+        f.write("LEGEND_COLORS\t#888888\n")
+        f.write("LEGEND_LABELS\tIndividuals\n")
+        f.write("DATA\n")
+        
+        for label in tip_labels:
+            node_id, day_value, episode = parse_episode_label(label)
+            
+            if node_id is not None:
+                color = node_colors.get(node_id, '#CCCCCC')
+                f.write(f"'{label}'\t{color}\tNode_{node_id}\n")
+            else:
+                f.write(f"'{label}'\t#CCCCCC\tUnknown\n")
+    
+    print(f"Unique node colorstrip saved to: {output_path}")
+
+def create_episode_number_colorstrip_episode(tip_labels, output_path):
+    """Ring 8: Episode numbers (1st, 2nd, 3rd infection, etc.)"""
+    
+    # Colors for different episode numbers
+    episode_colors = {
+        1: '#2ECC71',   # Green - 1st episode
+        2: '#F39C12',   # Orange - 2nd episode  
+        3: '#E74C3C',   # Red - 3rd episode
+        4: '#9B59B6',   # Purple - 4th episode
+        5: '#1ABC9C',   # Teal - 5th episode
+        6: '#34495E',   # Dark blue - 6th+ episode
+    }
+    
+    with open(output_path, 'w') as f:
+        f.write("DATASET_COLORSTRIP\n")
+        f.write("SEPARATOR TAB\n")
+        f.write("DATASET_LABEL\tEpisode Number\n")
+        f.write("COLOR\t#000000\n")
+        f.write("LEGEND_TITLE\tEpisode #\n")
+        f.write("LEGEND_SHAPES\t1\t1\t1\t1\t1\t1\n")
+        f.write("LEGEND_COLORS\t#2ECC71\t#F39C12\t#E74C3C\t#9B59B6\t#1ABC9C\t#34495E\n")
+        f.write("LEGEND_LABELS\t1st\t2nd\t3rd\t4th\t5th\t6th+\n")
+        f.write("DATA\n")
+        
+        for label in tip_labels:
+            node_id, day_value, episode = parse_episode_label(label)
+            
+            if episode is not None:
+                # Cap at 6+ for coloring
+                color_key = min(episode, 6)
+                color = episode_colors[color_key]
+                
+                # Create ordinal label
+                if episode == 1:
+                    ordinal = "1st"
+                elif episode == 2:
+                    ordinal = "2nd"
+                elif episode == 3:
+                    ordinal = "3rd"
+                else:
+                    ordinal = f"{episode}th"
+                
+                f.write(f"'{label}'\t{color}\t{ordinal}\n")
+            else:
+                f.write(f"'{label}'\t#CCCCCC\tUnknown\n")
+    
+    print(f"Episode number colorstrip saved to: {output_path}")
+
+# ========== MAIN SCRIPT ==========
+
+def main():
+    parser = argparse.ArgumentParser(description='Build hybrid transmission tree from simulation outputs')
+    parser.add_argument('output_dir', help='Directory containing simulation outputs and lineage results')
+    parser.add_argument('--cutoff-day', type=int, help='Day to switch from tree to daily chains (default: use tracking_start_day from simulation)')
+
+    
+    args = parser.parse_args()
+    
+    if not os.path.exists(args.output_dir):
+        print(f"❌ Directory does not exist: {args.output_dir}")
+        return 1
+    
+    try:
+        # Step 1: Load simulation data
+        transmission_df, nodes_dict, initial_infectors, initial_infectors_day, tracking_start_day = \
+            load_simulation_data(args.output_dir)
+
+        # Determine cutoff day
+        if args.cutoff_day:
+            cutoff_day = args.cutoff_day
+            print(f"   Using specified cutoff day: {cutoff_day}")
+        else:
+            cutoff_day = tracking_start_day
+            print(f"   Using tracking_start_day as cutoff: {cutoff_day}")
+
+        print(f"🌳 Starting tree building for: {args.output_dir}")
+        print(f"   Cutoff day: {cutoff_day}")
+                
+        # Step 2: Load lineage results
+        lineage_results = load_lineage_results(args.output_dir)
+        
+        # Step 3: Check if single lineage
+        if not lineage_results['single_lineage']:
+            print(f"❌ Single lineage requirement not met")
+            print(f"   Reason: {lineage_results['reason']}")
+            return 1
+        
+        # Step 4: Find root node information
+        dominant_lineage = lineage_results['dominant_lineage']
+        print(f"🎯 Using dominant lineage {dominant_lineage} as root")
+        
+        # Find the initial infector that corresponds to this lineage
+        root_node = int(dominant_lineage)  # Lineage ID = initial infector node ID
+        
+        # Get root duration from initial_infectors
+        root_duration = None
+        root_time = initial_infectors_day
+        
+        for node_id, remaining_days in initial_infectors:
+            if int(node_id) == root_node:
+                root_duration = int(remaining_days)
+                break
+        
+        if root_duration is None:
+            print(f"❌ Could not find initial infector info for dominant lineage {dominant_lineage}")
+            return 1
+        
+        print(f"🎯 Root node info: Node {root_node}, Time {root_time}, Duration {root_duration}")
+        
+        # Step 5: Reconstruct sim_results object
+        print(f"📋 Reconstructing sim_results object...")
+        sim_results = reconstruct_sim_results(transmission_df, nodes_dict, initial_infectors)
+        
+        # Step 6: Build hybrid episode tree
+        print(f"\n🌲 Building hybrid episode tree...")
+        
+        tree_results = build_and_save_episode_tree_CORRECTED(
+            results_obj=sim_results,
+            root_node=root_node,
+            root_time=root_time,
+            root_dur=root_duration,
+            cutoff_day=cutoff_day,
+            output_dir=args.output_dir
+        )
+        
+        print(f"✅ Tree built with {tree_results['total_tree_nodes']} nodes")
+        print(f"   Burn-in tips: {tree_results['burnin_tips']}")
+        print(f"   Post-burn-in tips: {tree_results['post_burnin_tips']}")
+        print(f"   Same-day reinfections: {tree_results['same_day_reinfections']}")
+        
+        # Step 7: Create annotation rings
+        print(f"\n🎨 Creating annotation rings...")
+        
+        create_all_episode_aware_colorstrips(
+            tree=tree_results['tree'],
+            nodes_dict=sim_results['nodes_dict'],
+            transmission_df_with_episodes=tree_results['transmission_df_with_episodes'],
+            cutoff_day=cutoff_day,
+            base_output_dir=args.output_dir
+        )
+        
+        # Step 8: Save tree building summary
+        tree_summary = {
+            'success': tree_results['post_burnin_tips'] > 0,
+            'root_node': root_node,
+            'root_time': root_time,
+            'root_duration': root_duration,
+            'cutoff_day': args.cutoff_day,
+            'total_tree_nodes': tree_results['total_tree_nodes'],
+            'burnin_tips': tree_results['burnin_tips'],
+            'post_burnin_tips': tree_results['post_burnin_tips'],
+            'same_day_reinfections': tree_results['same_day_reinfections'],
+            'tree_file': tree_results['output_file']
+        }
+        
+        summary_path = os.path.join(args.output_dir, "tree_build_summary.json")
+        with open(summary_path, 'w') as f:
+            json.dump(tree_summary, f, indent=2)
+        
+        print(f"\n📁 Tree building summary saved: {summary_path}")
+        
+        # Final result
+        if tree_results['post_burnin_tips'] > 0:
+            print(f"\n🎉 TREE BUILDING COMPLETE!")
+            print(f"   ✅ Post-burn-in tips found: {tree_results['post_burnin_tips']}")
+            print(f"   📄 Tree file: {os.path.basename(tree_results['output_file'])}")
+        else: 
+            print(f"\n⚠️  TREE BUILT BUT NO POST-BURN-IN TIPS FOUND")
+            print(f"   Tree may have stopped at burn-in boundary")
+        
+        return 0
+        
+    except Exception as e:
+        print(f"❌ Tree building failed: {e}")
+        import traceback
+        traceback.print_exc()
+        return 1
+
+if __name__ == "__main__":
+    exit(main())

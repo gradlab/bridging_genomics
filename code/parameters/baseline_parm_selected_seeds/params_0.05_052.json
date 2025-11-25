@@ -1,0 +1,294 @@
+{
+  "simulation": {
+    "N": 10000,
+    "partnership_burnin_days": 2000,
+    "transmission_burnin_days": 10000,
+    "sim_days": 3650,
+    "seed": 772076
+  },
+  "behaviors": {
+    "WSM": 0.475,
+    "MSW": 0.475,
+    "MSM": 0.03,
+    "MSMW": 0.02
+  },
+  "risk_distribution": {
+    "WSM": {
+      "prop_hi": 0.03,
+      "lo_dist": "gamma",
+      "lo_par": {
+        "shape": 1.5,
+        "scale": 0.13,
+        "min_rate": 0.05
+      },
+      "hi_dist": "gamma",
+      "hi_par": {
+        "shape": 5,
+        "scale": 3,
+        "min_rate": 0.1
+      }
+    },
+    "MSW": {
+      "prop_hi": 0.03,
+      "lo_dist": "gamma",
+      "lo_par": {
+        "shape": 1.5,
+        "scale": 0.13,
+        "min_rate": 0.05
+      },
+      "hi_dist": "gamma",
+      "hi_par": {
+        "shape": 5,
+        "scale": 3,
+        "min_rate": 0.1
+      }
+    },
+    "MSM": {
+      "prop_hi": 0.15,
+      "lo_dist": "gamma",
+      "lo_par": {
+        "shape": 1.5,
+        "scale": 0.13,
+        "min_rate": 0.05
+      },
+      "hi_dist": "gamma",
+      "hi_par": {
+        "shape": 5,
+        "scale": 3,
+        "min_rate": 0.1
+      }
+    },
+    "MSMW": {
+      "prop_hi": 0.15,
+      "lo_dist": "gamma",
+      "lo_par": {
+        "shape": 1.5,
+        "scale": 0.13,
+        "min_rate": 0.05
+      },
+      "hi_dist": "gamma",
+      "hi_par": {
+        "shape": 5,
+        "scale": 3,
+        "min_rate": 0.1
+      }
+    }
+  },
+  "partnerships": {
+    "allowed_partners": {
+      "WSM": [
+        "MSW",
+        "MSMW"
+      ],
+      "MSW": [
+        "WSM"
+      ],
+      "MSMW": [
+        "WSM",
+        "MSM",
+        "MSMW"
+      ],
+      "MSM": [
+        "MSM",
+        "MSMW"
+      ]
+    },
+    "p_MSMW_W": 0.05,
+    "casual_rate": 0.1,
+    "steady_shape": 4,
+    "steady_scale": 638.75,
+    "steady_capacity_mix": {
+      "hi": {
+        "0": 0.5,
+        "1": 0.3,
+        "2": 0.2
+      },
+      "lo": {
+        "0": 0.0,
+        "1": 0.8,
+        "2": 0.2
+      }
+    },
+    "p_msmw_w": 0.5
+  },
+  "infections": {
+    "initial_prevalences": {
+      "WSM": {
+        "all": 0.015,
+        "hi": 0.08
+      },
+      "MSW": {
+        "all": 0.015,
+        "hi": 0.08
+      },
+      "MSM": {
+        "all": 0.045,
+        "hi": 0.11
+      },
+      "MSMW": {
+        "all": 0.04,
+        "hi": 0.1
+      }
+    },
+    "transmission_probs_per_partner_per_day": {
+      "MSW-WSM, steady": 0.15,
+      "MSMW-WSM, steady": 0.15,
+      "WSM-MSW, steady": 0.0625,
+      "WSM-MSMW, steady": 0.0625,
+      "MSW-WSM, casual": 0.6,
+      "MSMW-WSM, casual": 0.6,
+      "WSM-MSW, casual": 0.25,
+      "WSM-MSMW, casual": 0.25,
+      "MSM-MSM, steady": 0.25,
+      "MSM-MSMW, steady": 0.25,
+      "MSMW-MSM, steady": 0.25,
+      "MSMW-MSMW, steady": 0.25,
+      "MSM-MSM, casual": 0.75,
+      "MSM-MSMW, casual": 0.75,
+      "MSMW-MSM, casual": 0.75,
+      "MSMW-MSMW, casual": 0.75
+    },
+    "infxn_duration_params_dict": {
+      "MSM": {
+        "hi": {
+          "symptomatic": {
+            "shape": 4,
+            "scale": 2.25
+          },
+          "natural_clearance": {
+            "shape": 9,
+            "scale": 7
+          },
+          "asymptomatic": {
+            "shape": 3,
+            "scale": 24.3
+          }
+        },
+        "lo": {
+          "symptomatic": {
+            "shape": 4,
+            "scale": 2.25
+          },
+          "natural_clearance": {
+            "shape": 9,
+            "scale": 7
+          },
+          "asymptomatic": {
+            "shape": 5,
+            "scale": 73
+          }
+        }
+      },
+      "MSW": {
+        "hi": {
+          "symptomatic": {
+            "shape": 4,
+            "scale": 2.25
+          },
+          "natural_clearance": {
+            "shape": 9,
+            "scale": 7
+          },
+          "asymptomatic": {
+            "shape": 2.5,
+            "scale": 110
+          }
+        },
+        "lo": {
+          "symptomatic": {
+            "shape": 4,
+            "scale": 2.25
+          },
+          "natural_clearance": {
+            "shape": 9,
+            "scale": 7
+          },
+          "asymptomatic": {
+            "shape": 5,
+            "scale": 73
+          }
+        }
+      },
+      "MSMW": {
+        "hi": {
+          "symptomatic": {
+            "shape": 4,
+            "scale": 2.25
+          },
+          "natural_clearance": {
+            "shape": 9,
+            "scale": 7
+          },
+          "asymptomatic": {
+            "shape": 3,
+            "scale": 24.3
+          }
+        },
+        "lo": {
+          "symptomatic": {
+            "shape": 4,
+            "scale": 2.25
+          },
+          "natural_clearance": {
+            "shape": 9,
+            "scale": 7
+          },
+          "asymptomatic": {
+            "shape": 5,
+            "scale": 73
+          }
+        }
+      },
+      "WSM": {
+        "hi": {
+          "symptomatic": {
+            "shape": 5,
+            "scale": 2.4
+          },
+          "natural_clearance": {
+            "shape": 10,
+            "scale": 8
+          },
+          "asymptomatic": {
+            "shape": 2.5,
+            "scale": 110
+          }
+        },
+        "lo": {
+          "symptomatic": {
+            "shape": 5,
+            "scale": 2.4
+          },
+          "natural_clearance": {
+            "shape": 10,
+            "scale": 8
+          },
+          "asymptomatic": {
+            "shape": 5,
+            "scale": 73
+          }
+        }
+      }
+    },
+    "prop_init_sx": {
+      "MSM": 0.089,
+      "MSMW": 0.089,
+      "MSW": 0.089,
+      "WSM": 0.05
+    },
+    "p_sx": {
+      "MSM": 0.65,
+      "MSMW": 0.65,
+      "MSW": 0.65,
+      "WSM": 0.54
+    }
+  },
+  "optional_outputs": [
+    "prevalence_time_series"
+  ],
+  "output": {
+    "output_dir": "../../output/param_sweep_brief_param_sweep_10_28_100each/0.05",
+    "run_name": "rep_052",
+    "save_plots": false
+  }
+}
