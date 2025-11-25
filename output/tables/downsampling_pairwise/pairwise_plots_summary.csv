@@ -1,0 +1,11 @@
+plot_number,population_1,population_2,filename
+1,Phylo - Detected Only,Phylo - Symptomatic Only,01_pairwise_detected_only_vs_symptomatic_only
+2,Phylo - Detected Only,Phylo - Symptomatic Men,02_pairwise_detected_only_vs_symptomatic_men
+3,Phylo - Detected Only,Phylo - High Activity Symptomatic Men,03_pairwise_detected_only_vs_high_activity_symptomatic_men
+4,Phylo - Detected Only,Phylo - Random Subsample High Activity,04_pairwise_detected_only_vs_random_subsample_high_activity
+5,Phylo - Symptomatic Only,Phylo - Symptomatic Men,05_pairwise_symptomatic_only_vs_symptomatic_men
+6,Phylo - Symptomatic Only,Phylo - High Activity Symptomatic Men,06_pairwise_symptomatic_only_vs_high_activity_symptomatic_men
+7,Phylo - Symptomatic Only,Phylo - Random Subsample High Activity,07_pairwise_symptomatic_only_vs_random_subsample_high_activity
+8,Phylo - Symptomatic Men,Phylo - High Activity Symptomatic Men,08_pairwise_symptomatic_men_vs_high_activity_symptomatic_men
+9,Phylo - Symptomatic Men,Phylo - Random Subsample High Activity,09_pairwise_symptomatic_men_vs_random_subsample_high_activity
+10,Phylo - High Activity Symptomatic Men,Phylo - Random Subsample High Activity,10_pairwise_high_activity_symptomatic_men_vs_random_subsample_high_activity

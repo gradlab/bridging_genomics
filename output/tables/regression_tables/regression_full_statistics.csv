@@ -1,0 +1,7 @@
+Population_ID,Population,Slope,Intercept,Slope_SE,Slope p-value (Wald),R2,Adj_R2,Pearson_r
+full_sequences,All Infections,1.282301,2.921e-5,0.017593,3.55e-87,0.981887,0.981702,0.990902
+detected_only_complete,Detected Only,0.971849,-1.54e-6,0.022141,2.10e-40,0.975691,0.975185,0.987771
+high_activity_symptomatic_men_complete,High Activity Symptomatic Men,0.477741,-7.117e-5,0.023622,3.92e-25,0.894972,0.892784,0.94603
+random_subsample_high_activity_complete,Random Subsample High Activity,0.348814,-1.016e-4,0.030349,2.19e-15,0.733483,0.72793,0.856436
+symptomatic_men_complete,Symptomatic Men,0.916593,-4.674e-5,0.027147,4.18e-35,0.959597,0.958755,0.97959
+symptomatic_only_complete,Symptomatic Only,1.123126,4.79e-6,0.026069,5.03e-40,0.974792,0.974267,0.987316

@@ -1,0 +1,351 @@
+Simulation,Population_ID,Population,Ground_Truth,Phylodynamic_Estimate
+0.05_014,full_sequences,All Infections,0.00012519448745116133,7.656719621805626e-5
+0.05_016,full_sequences,All Infections,2.8000487016297855e-4,1.5581014870760294e-4
+0.05_027,full_sequences,All Infections,2.1654777462492612e-4,1.7896188632800716e-4
+0.05_034,full_sequences,All Infections,2.4964933789834885e-4,1.947960962964824e-4
+0.05_048,full_sequences,All Infections,2.940227898641518e-4,1.8594915532503704e-4
+0.05_052,full_sequences,All Infections,1.8350662581006845e-4,1.5250323006784226e-4
+0.05_056,full_sequences,All Infections,3.8588620029904e-4,2.63888585516425e-4
+0.05_072,full_sequences,All Infections,2.1339271449002963e-4,1.551534691425391e-4
+0.05_077,full_sequences,All Infections,2.157475909573856e-4,1.5511886884256282e-4
+0.05_088,full_sequences,All Infections,1.5379759444307837e-4,1.270401614485823e-4
+0.25_007,full_sequences,All Infections,0.002154148578493111,0.0017522666077368207
+0.25_014,full_sequences,All Infections,0.001107389451937959,9.275228518767756e-4
+0.25_016,full_sequences,All Infections,0.0013218382637409565,0.0010413859006388503
+0.25_030,full_sequences,All Infections,0.0015799127478295341,0.0013239118682648757
+0.25_047,full_sequences,All Infections,0.00269418449595632,0.0022234116985166146
+0.25_061,full_sequences,All Infections,0.001880978157260919,0.0015146250377563023
+0.25_062,full_sequences,All Infections,0.002638977856851027,0.002155675983836939
+0.25_069,full_sequences,All Infections,0.0015627934364531022,0.0012948836657081352
+0.25_071,full_sequences,All Infections,0.0019204129779805282,0.0014023447521279418
+0.25_094,full_sequences,All Infections,0.002659565908412404,0.0018980444278357787
+0.5_009,full_sequences,All Infections,0.001791046112296002,0.001544622151652976
+0.5_017,full_sequences,All Infections,0.0031405197484138856,0.0023724656509576617
+0.5_026,full_sequences,All Infections,0.0013476818617014757,0.0011009365142486266
+0.5_037,full_sequences,All Infections,0.0021384462073111097,0.0018668673372884738
+0.5_046,full_sequences,All Infections,0.004373463526229227,0.00327415374440875
+0.5_060,full_sequences,All Infections,0.002600390219749577,0.001837346623444214
+0.5_061,full_sequences,All Infections,0.004205510916538399,0.0032945047049846013
+0.5_066,full_sequences,All Infections,0.0028883707560686932,0.0023017834322780146
+0.5_067,full_sequences,All Infections,0.003638893443319736,0.003087471776629529
+0.5_090,full_sequences,All Infections,0.001684412872654599,0.001457147168566445
+0.75_022,full_sequences,All Infections,0.0018494267813745752,0.001578741055618945
+0.75_035,full_sequences,All Infections,0.0030298142624065514,0.002233625529491535
+0.75_039,full_sequences,All Infections,0.0018765166309580594,0.0012577025242359221
+0.75_042,full_sequences,All Infections,0.001799228269530524,0.0013277675310632876
+0.75_046,full_sequences,All Infections,0.0032380315884517445,0.0019964880268219577
+0.75_053,full_sequences,All Infections,0.001746118782684998,0.0012918350065938852
+0.75_061,full_sequences,All Infections,0.003018840157907632,0.0020521938424191465
+0.75_072,full_sequences,All Infections,0.001586604196557494,0.0011361296934777195
+0.75_077,full_sequences,All Infections,0.0015239077112425994,0.00110439793609467
+0.75_099,full_sequences,All Infections,0.0011672850881876298,7.640786578751626e-4
+0.95_007,full_sequences,All Infections,3.444380674592562e-4,2.197409475958253e-4
+0.95_010,full_sequences,All Infections,1.784579127119916e-4,1.2467720287966198e-4
+0.95_019,full_sequences,All Infections,1.3865969863501682e-4,9.46852583184813e-5
+0.95_026,full_sequences,All Infections,9.538905762965244e-5,7.890488837710304e-5
+0.95_050,full_sequences,All Infections,3.435785365873615e-4,2.3350209901866828e-4
+0.95_051,full_sequences,All Infections,2.4999756792713003e-4,1.6084226878855182e-4
+0.95_069,full_sequences,All Infections,3.3352117433054027e-4,2.3770926502999303e-4
+0.95_072,full_sequences,All Infections,2.277403983879252e-4,1.7980518306586705e-4
+0.95_073,full_sequences,All Infections,1.094639542672251e-4,8.448912893472275e-5
+0.95_090,full_sequences,All Infections,3.3780173447882253e-4,1.917700198692863e-4
+0.05_014,full_sequences,All Infections,0.00012519448745116133,7.656719621805626e-5
+0.05_014,detected_only_complete,Detected Only,0.00012519448745116133,1.010886212600895e-4
+0.05_014,high_activity_symptomatic_men_complete,High Activity Symptomatic Men,0.00012519448745116133,3.097670925993746e-4
+0.05_014,random_subsample_high_activity_complete,Random Subsample High Activity,0.00012519448745116133,4.196007186863431e-4
+0.05_014,symptomatic_men_complete,Symptomatic Men,0.00012519448745116133,1.0761764723204545e-4
+0.05_014,symptomatic_only_complete,Symptomatic Only,0.00012519448745116133,8.545766611224844e-5
+0.05_016,full_sequences,All Infections,2.8000487016297855e-4,1.5581014870760294e-4
+0.05_016,detected_only_complete,Detected Only,2.8000487016297855e-4,1.9559455830785332e-4
+0.05_016,high_activity_symptomatic_men_complete,High Activity Symptomatic Men,2.8000487016297855e-4,4.0363594587315504e-4
+0.05_016,random_subsample_high_activity_complete,Random Subsample High Activity,2.8000487016297855e-4,0.0014011698698396793
+0.05_016,symptomatic_men_complete,Symptomatic Men,2.8000487016297855e-4,1.9425703615330876e-4
+0.05_016,symptomatic_only_complete,Symptomatic Only,2.8000487016297855e-4,1.65180244524191e-4
+0.05_027,full_sequences,All Infections,2.1654777462492612e-4,1.7896188632800716e-4
+0.05_027,detected_only_complete,Detected Only,2.1654777462492612e-4,2.2509343100712958e-4
+0.05_027,high_activity_symptomatic_men_complete,High Activity Symptomatic Men,2.1654777462492612e-4,4.633929210650838e-4
+0.05_027,random_subsample_high_activity_complete,Random Subsample High Activity,2.1654777462492612e-4,7.421550094517912e-4
+0.05_027,symptomatic_men_complete,Symptomatic Men,2.1654777462492612e-4,2.567428410205414e-4
+0.05_027,symptomatic_only_complete,Symptomatic Only,2.1654777462492612e-4,1.963157957456904e-4
+0.05_034,full_sequences,All Infections,2.4964933789834885e-4,1.947960962964824e-4
+0.05_034,detected_only_complete,Detected Only,2.4964933789834885e-4,2.3167269758330025e-4
+0.05_034,high_activity_symptomatic_men_complete,High Activity Symptomatic Men,2.4964933789834885e-4,5.294807850991414e-4
+0.05_034,random_subsample_high_activity_complete,Random Subsample High Activity,2.4964933789834885e-4,5.200530772256299e-4
+0.05_034,symptomatic_men_complete,Symptomatic Men,2.4964933789834885e-4,2.5539657174934954e-4
+0.05_034,symptomatic_only_complete,Symptomatic Only,2.4964933789834885e-4,1.9385633087619716e-4
+0.05_048,full_sequences,All Infections,2.940227898641518e-4,1.8594915532503704e-4
+0.05_048,detected_only_complete,Detected Only,2.940227898641518e-4,2.1873470618764625e-4
+0.05_048,high_activity_symptomatic_men_complete,High Activity Symptomatic Men,2.940227898641518e-4,3.925389130399149e-4
+0.05_048,random_subsample_high_activity_complete,Random Subsample High Activity,2.940227898641518e-4,6.405067034083126e-4
+0.05_048,symptomatic_men_complete,Symptomatic Men,2.940227898641518e-4,1.8776020818478048e-4
+0.05_048,symptomatic_only_complete,Symptomatic Only,2.940227898641518e-4,1.8579371741560797e-4
+0.05_052,full_sequences,All Infections,1.8350662581006845e-4,1.5250323006784226e-4
+0.05_052,detected_only_complete,Detected Only,1.8350662581006845e-4,2.381503776319984e-4
+0.05_052,high_activity_symptomatic_men_complete,High Activity Symptomatic Men,1.8350662581006845e-4,5.104265181794775e-4
+0.05_052,random_subsample_high_activity_complete,Random Subsample High Activity,1.8350662581006845e-4,0.00109052240913805
+0.05_052,symptomatic_men_complete,Symptomatic Men,1.8350662581006845e-4,3.102773153382004e-4
+0.05_052,symptomatic_only_complete,Symptomatic Only,1.8350662581006845e-4,1.9723802470782937e-4
+0.05_056,full_sequences,All Infections,3.8588620029904e-4,2.63888585516425e-4
+0.05_056,detected_only_complete,Detected Only,3.8588620029904e-4,3.510863706818256e-4
+0.05_056,high_activity_symptomatic_men_complete,High Activity Symptomatic Men,3.8588620029904e-4,6.886349652886873e-4
+0.05_056,random_subsample_high_activity_complete,Random Subsample High Activity,3.8588620029904e-4,5.206828922515481e-4
+0.05_056,symptomatic_men_complete,Symptomatic Men,3.8588620029904e-4,3.5852067719225207e-4
+0.05_056,symptomatic_only_complete,Symptomatic Only,3.8588620029904e-4,3.331976235165878e-4
+0.05_072,full_sequences,All Infections,2.1339271449002963e-4,1.551534691425391e-4
+0.05_072,detected_only_complete,Detected Only,2.1339271449002963e-4,2.283846015212684e-4
+0.05_072,high_activity_symptomatic_men_complete,High Activity Symptomatic Men,2.1339271449002963e-4,5.602583554045403e-4
+0.05_072,random_subsample_high_activity_complete,Random Subsample High Activity,2.1339271449002963e-4,0.0012188525463584063
+0.05_072,symptomatic_men_complete,Symptomatic Men,2.1339271449002963e-4,2.399795223510936e-4
+0.05_072,symptomatic_only_complete,Symptomatic Only,2.1339271449002963e-4,1.9076941781492974e-4
+0.05_077,full_sequences,All Infections,2.157475909573856e-4,1.5511886884256282e-4
+0.05_077,detected_only_complete,Detected Only,2.157475909573856e-4,2.2580310446925817e-4
+0.05_077,high_activity_symptomatic_men_complete,High Activity Symptomatic Men,2.157475909573856e-4,5.159431945781384e-4
+0.05_077,random_subsample_high_activity_complete,Random Subsample High Activity,2.157475909573856e-4,9.04586402402273e-4
+0.05_077,symptomatic_men_complete,Symptomatic Men,2.157475909573856e-4,2.4294904532987577e-4
+0.05_077,symptomatic_only_complete,Symptomatic Only,2.157475909573856e-4,2.0357845522063822e-4
+0.05_088,full_sequences,All Infections,1.5379759444307837e-4,1.270401614485823e-4
+0.05_088,detected_only_complete,Detected Only,1.5379759444307837e-4,1.6732772439664715e-4
+0.05_088,high_activity_symptomatic_men_complete,High Activity Symptomatic Men,1.5379759444307837e-4,3.79652262510584e-4
+0.05_088,random_subsample_high_activity_complete,Random Subsample High Activity,1.5379759444307837e-4,5.371133734782039e-4
+0.05_088,symptomatic_men_complete,Symptomatic Men,1.5379759444307837e-4,1.9542134617740855e-4
+0.05_088,symptomatic_only_complete,Symptomatic Only,1.5379759444307837e-4,0.00013992122231994594
+0.25_007,full_sequences,All Infections,0.002154148578493111,0.0017522666077368207
+0.25_007,detected_only_complete,Detected Only,0.002154148578493111,0.0023782320091328456
+0.25_007,high_activity_symptomatic_men_complete,High Activity Symptomatic Men,0.002154148578493111,0.003965756712027159
+0.25_007,random_subsample_high_activity_complete,Random Subsample High Activity,0.002154148578493111,0.005217100278248686
+0.25_007,symptomatic_men_complete,Symptomatic Men,0.002154148578493111,0.002399751136919129
+0.25_007,symptomatic_only_complete,Symptomatic Only,0.002154148578493111,0.002103273411938469
+0.25_014,full_sequences,All Infections,0.001107389451937959,9.275228518767756e-4
+0.25_014,detected_only_complete,Detected Only,0.001107389451937959,0.0012580226053648135
+0.25_014,high_activity_symptomatic_men_complete,High Activity Symptomatic Men,0.001107389451937959,0.002921867134947141
+0.25_014,random_subsample_high_activity_complete,Random Subsample High Activity,0.001107389451937959,0.003249889579041328
+0.25_014,symptomatic_men_complete,Symptomatic Men,0.001107389451937959,0.0013943281429930484
+0.25_014,symptomatic_only_complete,Symptomatic Only,0.001107389451937959,0.0010836457020639988
+0.25_016,full_sequences,All Infections,0.0013218382637409565,0.0010413859006388503
+0.25_016,detected_only_complete,Detected Only,0.0013218382637409565,0.0013723041109079705
+0.25_016,high_activity_symptomatic_men_complete,High Activity Symptomatic Men,0.0013218382637409565,0.003072519731106963
+0.25_016,random_subsample_high_activity_complete,Random Subsample High Activity,0.0013218382637409565,0.00539985050437168
+0.25_016,symptomatic_men_complete,Symptomatic Men,0.0013218382637409565,0.0015245498354637239
+0.25_016,symptomatic_only_complete,Symptomatic Only,0.0013218382637409565,0.0012250514715123227
+0.25_030,full_sequences,All Infections,0.0015799127478295341,0.0013239118682648757
+0.25_030,detected_only_complete,Detected Only,0.0015799127478295341,0.0019184112965250576
+0.25_030,high_activity_symptomatic_men_complete,High Activity Symptomatic Men,0.0015799127478295341,0.004036561079502676
+0.25_030,random_subsample_high_activity_complete,Random Subsample High Activity,0.0015799127478295341,0.004370414435851667
+0.25_030,symptomatic_men_complete,Symptomatic Men,0.0015799127478295341,0.002078104832057133
+0.25_030,symptomatic_only_complete,Symptomatic Only,0.0015799127478295341,0.0016366439937903076
+0.25_047,full_sequences,All Infections,0.00269418449595632,0.0022234116985166146
+0.25_047,detected_only_complete,Detected Only,0.00269418449595632,0.0029080641455530945
+0.25_047,high_activity_symptomatic_men_complete,High Activity Symptomatic Men,0.00269418449595632,0.0057057977308629755
+0.25_047,random_subsample_high_activity_complete,Random Subsample High Activity,0.00269418449595632,0.006667579898288413
+0.25_047,symptomatic_men_complete,Symptomatic Men,0.00269418449595632,0.002972462711087895
+0.25_047,symptomatic_only_complete,Symptomatic Only,0.00269418449595632,0.002567040701616361
+0.25_061,full_sequences,All Infections,0.001880978157260919,0.0015146250377563023
+0.25_061,detected_only_complete,Detected Only,0.001880978157260919,0.00210214866730272
+0.25_061,high_activity_symptomatic_men_complete,High Activity Symptomatic Men,0.001880978157260919,0.0046145999779143385
+0.25_061,random_subsample_high_activity_complete,Random Subsample High Activity,0.001880978157260919,0.0058238755731047755
+0.25_061,symptomatic_men_complete,Symptomatic Men,0.001880978157260919,0.00234402088044217
+0.25_061,symptomatic_only_complete,Symptomatic Only,0.001880978157260919,0.0017639452333383576
+0.25_062,full_sequences,All Infections,0.002638977856851027,0.002155675983836939
+0.25_062,detected_only_complete,Detected Only,0.002638977856851027,0.002873223265458687
+0.25_062,high_activity_symptomatic_men_complete,High Activity Symptomatic Men,0.002638977856851027,0.0047837766470206055
+0.25_062,random_subsample_high_activity_complete,Random Subsample High Activity,0.002638977856851027,0.00435973954605322
+0.25_062,symptomatic_men_complete,Symptomatic Men,0.002638977856851027,0.002900090486047257
+0.25_062,symptomatic_only_complete,Symptomatic Only,0.002638977856851027,0.0024435861098219855
+0.25_069,full_sequences,All Infections,0.0015627934364531022,0.0012948836657081352
+0.25_069,detected_only_complete,Detected Only,0.0015627934364531022,0.001565697186810175
+0.25_069,high_activity_symptomatic_men_complete,High Activity Symptomatic Men,0.0015627934364531022,0.0035629885380701618
+0.25_069,random_subsample_high_activity_complete,Random Subsample High Activity,0.0015627934364531022,0.005467773513841582
+0.25_069,symptomatic_men_complete,Symptomatic Men,0.0015627934364531022,0.0018440050952077053
+0.25_069,symptomatic_only_complete,Symptomatic Only,0.0015627934364531022,0.0014073290575554866
+0.25_071,full_sequences,All Infections,0.0019204129779805282,0.0014023447521279418
+0.25_071,detected_only_complete,Detected Only,0.0019204129779805282,0.0019592827094631025
+0.25_071,high_activity_symptomatic_men_complete,High Activity Symptomatic Men,0.0019204129779805282,0.0036617313327604764
+0.25_071,random_subsample_high_activity_complete,Random Subsample High Activity,0.0019204129779805282,0.005478532999133111
+0.25_071,symptomatic_men_complete,Symptomatic Men,0.0019204129779805282,0.001808864708281879
+0.25_071,symptomatic_only_complete,Symptomatic Only,0.0019204129779805282,0.001665469497540777
+0.25_094,full_sequences,All Infections,0.002659565908412404,0.0018980444278357787
+0.25_094,detected_only_complete,Detected Only,0.002659565908412404,0.0022894941928572545
+0.25_094,high_activity_symptomatic_men_complete,High Activity Symptomatic Men,0.002659565908412404,0.0031177635876232694
+0.25_094,random_subsample_high_activity_complete,Random Subsample High Activity,0.002659565908412404,0.006696348394843379
+0.25_094,symptomatic_men_complete,Symptomatic Men,0.002659565908412404,0.002103621813641918
+0.25_094,symptomatic_only_complete,Symptomatic Only,0.002659565908412404,0.001949876688473844
+0.5_009,full_sequences,All Infections,0.001791046112296002,0.001544622151652976
+0.5_009,detected_only_complete,Detected Only,0.001791046112296002,0.0022784413012378792
+0.5_009,high_activity_symptomatic_men_complete,High Activity Symptomatic Men,0.001791046112296002,0.004354916089250601
+0.5_009,random_subsample_high_activity_complete,Random Subsample High Activity,0.001791046112296002,0.008746202565338384
+0.5_009,symptomatic_men_complete,Symptomatic Men,0.001791046112296002,0.0020649072703201126
+0.5_009,symptomatic_only_complete,Symptomatic Only,0.001791046112296002,0.0017663267000441333
+0.5_017,full_sequences,All Infections,0.0031405197484138856,0.0023724656509576617
+0.5_017,detected_only_complete,Detected Only,0.0031405197484138856,0.003059679497460774
+0.5_017,high_activity_symptomatic_men_complete,High Activity Symptomatic Men,0.0031405197484138856,0.004812638458204376
+0.5_017,random_subsample_high_activity_complete,Random Subsample High Activity,0.0031405197484138856,0.005325868246124918
+0.5_017,symptomatic_men_complete,Symptomatic Men,0.0031405197484138856,0.0029697587456574796
+0.5_017,symptomatic_only_complete,Symptomatic Only,0.0031405197484138856,0.002696645690584768
+0.5_026,full_sequences,All Infections,0.0013476818617014757,0.0011009365142486266
+0.5_026,detected_only_complete,Detected Only,0.0013476818617014757,0.001630190974479394
+0.5_026,high_activity_symptomatic_men_complete,High Activity Symptomatic Men,0.0013476818617014757,0.003674008497402871
+0.5_026,random_subsample_high_activity_complete,Random Subsample High Activity,0.0013476818617014757,0.00558186230745671
+0.5_026,symptomatic_men_complete,Symptomatic Men,0.0013476818617014757,0.0016121126140089728
+0.5_026,symptomatic_only_complete,Symptomatic Only,0.0013476818617014757,0.0013850890809243832
+0.5_037,full_sequences,All Infections,0.0021384462073111097,0.0018668673372884738
+0.5_037,detected_only_complete,Detected Only,0.0021384462073111097,0.0024390508093305257
+0.5_037,high_activity_symptomatic_men_complete,High Activity Symptomatic Men,0.0021384462073111097,0.004811511267500261
+0.5_037,random_subsample_high_activity_complete,Random Subsample High Activity,0.0021384462073111097,0.007329377325394393
+0.5_037,symptomatic_men_complete,Symptomatic Men,0.0021384462073111097,0.002666346506826919
+0.5_037,symptomatic_only_complete,Symptomatic Only,0.0021384462073111097,0.002105855446311155
+0.5_046,full_sequences,All Infections,0.004373463526229227,0.00327415374440875
+0.5_046,detected_only_complete,Detected Only,0.004373463526229227,0.004151370862839262
+0.5_046,high_activity_symptomatic_men_complete,High Activity Symptomatic Men,0.004373463526229227,0.006479215186085068
+0.5_046,random_subsample_high_activity_complete,Random Subsample High Activity,0.004373463526229227,0.008796074173211101
+0.5_046,symptomatic_men_complete,Symptomatic Men,0.004373463526229227,0.00401770096851421
+0.5_046,symptomatic_only_complete,Symptomatic Only,0.004373463526229227,0.0035132181884384816
+0.5_060,full_sequences,All Infections,0.002600390219749577,0.001837346623444214
+0.5_060,detected_only_complete,Detected Only,0.002600390219749577,0.0026493181705688432
+0.5_060,high_activity_symptomatic_men_complete,High Activity Symptomatic Men,0.002600390219749577,0.0062547911753548045
+0.5_060,random_subsample_high_activity_complete,Random Subsample High Activity,0.002600390219749577,0.008310264875337465
+0.5_060,symptomatic_men_complete,Symptomatic Men,0.002600390219749577,0.0027841362944306925
+0.5_060,symptomatic_only_complete,Symptomatic Only,0.002600390219749577,0.002274006867368225
+0.5_061,full_sequences,All Infections,0.004205510916538399,0.0032945047049846013
+0.5_061,detected_only_complete,Detected Only,0.004205510916538399,0.004202654514380114
+0.5_061,high_activity_symptomatic_men_complete,High Activity Symptomatic Men,0.004205510916538399,0.0074682957070619565
+0.5_061,random_subsample_high_activity_complete,Random Subsample High Activity,0.004205510916538399,0.007170426632801345
+0.5_061,symptomatic_men_complete,Symptomatic Men,0.004205510916538399,0.004078416377845831
+0.5_061,symptomatic_only_complete,Symptomatic Only,0.004205510916538399,0.0035683218840456363
+0.5_066,full_sequences,All Infections,0.0028883707560686932,0.0023017834322780146
+0.5_066,detected_only_complete,Detected Only,0.0028883707560686932,0.0031082858421497685
+0.5_066,high_activity_symptomatic_men_complete,High Activity Symptomatic Men,0.0028883707560686932,0.0067614188585274956
+0.5_066,random_subsample_high_activity_complete,Random Subsample High Activity,0.0028883707560686932,0.008603939082646785
+0.5_066,symptomatic_men_complete,Symptomatic Men,0.0028883707560686932,0.0035854244645211527
+0.5_066,symptomatic_only_complete,Symptomatic Only,0.0028883707560686932,0.002755818892071744
+0.5_067,full_sequences,All Infections,0.003638893443319736,0.003087471776629529
+0.5_067,detected_only_complete,Detected Only,0.003638893443319736,0.004201153568402404
+0.5_067,high_activity_symptomatic_men_complete,High Activity Symptomatic Men,0.003638893443319736,0.009371470321410088
+0.5_067,random_subsample_high_activity_complete,Random Subsample High Activity,0.003638893443319736,0.00901381946102079
+0.5_067,symptomatic_men_complete,Symptomatic Men,0.003638893443319736,0.004327588385479493
+0.5_067,symptomatic_only_complete,Symptomatic Only,0.003638893443319736,0.0036809846332707436
+0.5_090,full_sequences,All Infections,0.001684412872654599,0.001457147168566445
+0.5_090,detected_only_complete,Detected Only,0.001684412872654599,0.001787425157593756
+0.5_090,high_activity_symptomatic_men_complete,High Activity Symptomatic Men,0.001684412872654599,0.004027543406587791
+0.5_090,random_subsample_high_activity_complete,Random Subsample High Activity,0.001684412872654599,0.00825179418466803
+0.5_090,symptomatic_men_complete,Symptomatic Men,0.001684412872654599,0.0020300398530096755
+0.5_090,symptomatic_only_complete,Symptomatic Only,0.001684412872654599,0.0015558584931295236
+0.75_022,full_sequences,All Infections,0.0018494267813745752,0.001578741055618945
+0.75_022,detected_only_complete,Detected Only,0.0018494267813745752,0.002121270020507685
+0.75_022,high_activity_symptomatic_men_complete,High Activity Symptomatic Men,0.0018494267813745752,0.004943824697230537
+0.75_022,random_subsample_high_activity_complete,Random Subsample High Activity,0.0018494267813745752,0.007415419501133782
+0.75_022,symptomatic_men_complete,Symptomatic Men,0.0018494267813745752,0.0025219980524763324
+0.75_022,symptomatic_only_complete,Symptomatic Only,0.0018494267813745752,0.0018513905476500575
+0.75_035,full_sequences,All Infections,0.0030298142624065514,0.002233625529491535
+0.75_035,detected_only_complete,Detected Only,0.0030298142624065514,0.0029783273289173805
+0.75_035,high_activity_symptomatic_men_complete,High Activity Symptomatic Men,0.0030298142624065514,0.006319497656459905
+0.75_035,random_subsample_high_activity_complete,Random Subsample High Activity,0.0030298142624065514,0.0070774913837118375
+0.75_035,symptomatic_men_complete,Symptomatic Men,0.0030298142624065514,0.0033383212749522636
+0.75_035,symptomatic_only_complete,Symptomatic Only,0.0030298142624065514,0.0026381184898843515
+0.75_039,full_sequences,All Infections,0.0018765166309580594,0.0012577025242359221
+0.75_039,detected_only_complete,Detected Only,0.0018765166309580594,0.0016806832522083968
+0.75_039,high_activity_symptomatic_men_complete,High Activity Symptomatic Men,0.0018765166309580594,0.003935912835132778
+0.75_039,random_subsample_high_activity_complete,Random Subsample High Activity,0.0018765166309580594,0.006579893880933675
+0.75_039,symptomatic_men_complete,Symptomatic Men,0.0018765166309580594,0.0018891212994893223
+0.75_039,symptomatic_only_complete,Symptomatic Only,0.0018765166309580594,0.0016949984521430139
+0.75_042,full_sequences,All Infections,0.001799228269530524,0.0013277675310632876
+0.75_042,detected_only_complete,Detected Only,0.001799228269530524,0.0018681273155809921
+0.75_042,high_activity_symptomatic_men_complete,High Activity Symptomatic Men,0.001799228269530524,0.005268306203355406
+0.75_042,random_subsample_high_activity_complete,Random Subsample High Activity,0.001799228269530524,0.007475640295141455
+0.75_042,symptomatic_men_complete,Symptomatic Men,0.001799228269530524,0.0023712987345034914
+0.75_042,symptomatic_only_complete,Symptomatic Only,0.001799228269530524,0.001614208197583157
+0.75_046,full_sequences,All Infections,0.0032380315884517445,0.0019964880268219577
+0.75_046,detected_only_complete,Detected Only,0.0032380315884517445,0.0026387228638671215
+0.75_046,high_activity_symptomatic_men_complete,High Activity Symptomatic Men,0.0032380315884517445,0.006528823117888928
+0.75_046,random_subsample_high_activity_complete,Random Subsample High Activity,0.0032380315884517445,0.007249530310452672
+0.75_046,symptomatic_men_complete,Symptomatic Men,0.0032380315884517445,0.0035802752110898573
+0.75_046,symptomatic_only_complete,Symptomatic Only,0.0032380315884517445,0.002246558998588164
+0.75_053,full_sequences,All Infections,0.001746118782684998,0.0012918350065938852
+0.75_053,detected_only_complete,Detected Only,0.001746118782684998,0.0018422346775677923
+0.75_053,high_activity_symptomatic_men_complete,High Activity Symptomatic Men,0.001746118782684998,0.004477622183426325
+0.75_053,random_subsample_high_activity_complete,Random Subsample High Activity,0.001746118782684998,0.005452185548796439
+0.75_053,symptomatic_men_complete,Symptomatic Men,0.001746118782684998,0.0020891800602659914
+0.75_053,symptomatic_only_complete,Symptomatic Only,0.001746118782684998,0.0015549224870342988
+0.75_061,full_sequences,All Infections,0.003018840157907632,0.0020521938424191465
+0.75_061,detected_only_complete,Detected Only,0.003018840157907632,0.002861644491944591
+0.75_061,high_activity_symptomatic_men_complete,High Activity Symptomatic Men,0.003018840157907632,0.0064585851072051625
+0.75_061,random_subsample_high_activity_complete,Random Subsample High Activity,0.003018840157907632,0.007620282336315861
+0.75_061,symptomatic_men_complete,Symptomatic Men,0.003018840157907632,0.0036152202802707577
+0.75_061,symptomatic_only_complete,Symptomatic Only,0.003018840157907632,0.0024645506091215356
+0.75_072,full_sequences,All Infections,0.001586604196557494,0.0011361296934777195
+0.75_072,detected_only_complete,Detected Only,0.001586604196557494,0.001756698716689052
+0.75_072,high_activity_symptomatic_men_complete,High Activity Symptomatic Men,0.001586604196557494,0.004612295761103748
+0.75_072,random_subsample_high_activity_complete,Random Subsample High Activity,0.001586604196557494,0.008471531319054164
+0.75_072,symptomatic_men_complete,Symptomatic Men,0.001586604196557494,0.0022824618554840004
+0.75_072,symptomatic_only_complete,Symptomatic Only,0.001586604196557494,0.0014697418797021118
+0.75_077,full_sequences,All Infections,0.0015239077112425994,0.00110439793609467
+0.75_077,detected_only_complete,Detected Only,0.0015239077112425994,0.0014520784515164504
+0.75_077,high_activity_symptomatic_men_complete,High Activity Symptomatic Men,0.0015239077112425994,0.0036534670919349424
+0.75_077,random_subsample_high_activity_complete,Random Subsample High Activity,0.0015239077112425994,0.0080442054568099
+0.75_077,symptomatic_men_complete,Symptomatic Men,0.0015239077112425994,0.0018944021748108955
+0.75_077,symptomatic_only_complete,Symptomatic Only,0.0015239077112425994,0.0011482799697480417
+0.75_099,full_sequences,All Infections,0.0011672850881876298,7.640786578751626e-4
+0.75_099,detected_only_complete,Detected Only,0.0011672850881876298,0.0010823995193617406
+0.75_099,high_activity_symptomatic_men_complete,High Activity Symptomatic Men,0.0011672850881876298,0.00283819674226678
+0.75_099,random_subsample_high_activity_complete,Random Subsample High Activity,0.0011672850881876298,0.0034058525892227036
+0.75_099,symptomatic_men_complete,Symptomatic Men,0.0011672850881876298,0.001387738291591946
+0.75_099,symptomatic_only_complete,Symptomatic Only,0.0011672850881876298,8.917294338750189e-4
+0.95_007,full_sequences,All Infections,3.444380674592562e-4,2.197409475958253e-4
+0.95_007,detected_only_complete,Detected Only,3.444380674592562e-4,3.200501565661261e-4
+0.95_007,high_activity_symptomatic_men_complete,High Activity Symptomatic Men,3.444380674592562e-4,0.0010563695197771037
+0.95_007,random_subsample_high_activity_complete,Random Subsample High Activity,3.444380674592562e-4,0.0018185243328100412
+0.95_007,symptomatic_men_complete,Symptomatic Men,3.444380674592562e-4,4.012332838725449e-4
+0.95_007,symptomatic_only_complete,Symptomatic Only,3.444380674592562e-4,2.814603566423399e-4
+0.95_010,full_sequences,All Infections,1.784579127119916e-4,1.2467720287966198e-4
+0.95_010,detected_only_complete,Detected Only,1.784579127119916e-4,2.0244389820958504e-4
+0.95_010,high_activity_symptomatic_men_complete,High Activity Symptomatic Men,1.784579127119916e-4,8.491408312199131e-4
+0.95_010,random_subsample_high_activity_complete,Random Subsample High Activity,1.784579127119916e-4,0.001019066403681782
+0.95_010,symptomatic_men_complete,Symptomatic Men,1.784579127119916e-4,2.2862729312257143e-4
+0.95_010,symptomatic_only_complete,Symptomatic Only,1.784579127119916e-4,1.6157142036222306e-4
+0.95_019,full_sequences,All Infections,1.3865969863501682e-4,9.46852583184813e-5
+0.95_019,detected_only_complete,Detected Only,1.3865969863501682e-4,1.40743845650531e-4
+0.95_019,high_activity_symptomatic_men_complete,High Activity Symptomatic Men,1.3865969863501682e-4,5.385671988034507e-4
+0.95_019,random_subsample_high_activity_complete,Random Subsample High Activity,1.3865969863501682e-4,7.550712875177039e-4
+0.95_019,symptomatic_men_complete,Symptomatic Men,1.3865969863501682e-4,1.9741388802139653e-4
+0.95_019,symptomatic_only_complete,Symptomatic Only,1.3865969863501682e-4,1.0887637917872552e-4
+0.95_026,full_sequences,All Infections,9.538905762965244e-5,7.890488837710304e-5
+0.95_026,detected_only_complete,Detected Only,9.538905762965244e-5,0.00012213771438222885
+0.95_026,high_activity_symptomatic_men_complete,High Activity Symptomatic Men,9.538905762965244e-5,4.42164925117931e-4
+0.95_026,random_subsample_high_activity_complete,Random Subsample High Activity,9.538905762965244e-5,9.636543106838171e-4
+0.95_026,symptomatic_men_complete,Symptomatic Men,9.538905762965244e-5,1.73375773550651e-4
+0.95_026,symptomatic_only_complete,Symptomatic Only,9.538905762965244e-5,1.1149333574888851e-4
+0.95_050,full_sequences,All Infections,3.435785365873615e-4,2.3350209901866828e-4
+0.95_050,detected_only_complete,Detected Only,3.435785365873615e-4,3.676739159227165e-4
+0.95_050,high_activity_symptomatic_men_complete,High Activity Symptomatic Men,3.435785365873615e-4,0.0011802826813676586
+0.95_050,random_subsample_high_activity_complete,Random Subsample High Activity,3.435785365873615e-4,0.0024931584035305905
+0.95_050,symptomatic_men_complete,Symptomatic Men,3.435785365873615e-4,4.7662044258298716e-4
+0.95_050,symptomatic_only_complete,Symptomatic Only,3.435785365873615e-4,3.1092048504632804e-4
+0.95_051,full_sequences,All Infections,2.4999756792713003e-4,1.6084226878855182e-4
+0.95_051,detected_only_complete,Detected Only,2.4999756792713003e-4,2.170554721991975e-4
+0.95_051,high_activity_symptomatic_men_complete,High Activity Symptomatic Men,2.4999756792713003e-4,0.0010124585272591388
+0.95_051,random_subsample_high_activity_complete,Random Subsample High Activity,2.4999756792713003e-4,0.0019321274188490957
+0.95_051,symptomatic_men_complete,Symptomatic Men,2.4999756792713003e-4,3.0839536477906816e-4
+0.95_051,symptomatic_only_complete,Symptomatic Only,2.4999756792713003e-4,1.766600589886013e-4
+0.95_069,full_sequences,All Infections,3.3352117433054027e-4,2.3770926502999303e-4
+0.95_069,detected_only_complete,Detected Only,3.3352117433054027e-4,3.6806911278473083e-4
+0.95_069,high_activity_symptomatic_men_complete,High Activity Symptomatic Men,3.3352117433054027e-4,0.0011176950038145376
+0.95_069,random_subsample_high_activity_complete,Random Subsample High Activity,3.3352117433054027e-4,0.002318123279715155
+0.95_069,symptomatic_men_complete,Symptomatic Men,3.3352117433054027e-4,4.6457634269644877e-4
+0.95_069,symptomatic_only_complete,Symptomatic Only,3.3352117433054027e-4,2.9663527070711304e-4
+0.95_072,full_sequences,All Infections,2.277403983879252e-4,1.7980518306586705e-4
+0.95_072,detected_only_complete,Detected Only,2.277403983879252e-4,2.693597331434056e-4
+0.95_072,high_activity_symptomatic_men_complete,High Activity Symptomatic Men,2.277403983879252e-4,0.0011076755442290674
+0.95_072,random_subsample_high_activity_complete,Random Subsample High Activity,2.277403983879252e-4,0.0017507486531260206
+0.95_072,symptomatic_men_complete,Symptomatic Men,2.277403983879252e-4,3.6581770338875756e-4
+0.95_072,symptomatic_only_complete,Symptomatic Only,2.277403983879252e-4,2.2469071190629815e-4
+0.95_073,full_sequences,All Infections,1.094639542672251e-4,8.448912893472275e-5
+0.95_073,detected_only_complete,Detected Only,1.094639542672251e-4,1.3803039854242194e-4
+0.95_073,high_activity_symptomatic_men_complete,High Activity Symptomatic Men,1.094639542672251e-4,4.834566161107348e-4
+0.95_073,random_subsample_high_activity_complete,Random Subsample High Activity,1.094639542672251e-4,0.0011484831181270536
+0.95_073,symptomatic_men_complete,Symptomatic Men,1.094639542672251e-4,1.8412946691721631e-4
+0.95_073,symptomatic_only_complete,Symptomatic Only,1.094639542672251e-4,1.0449665494204397e-4
+0.95_090,full_sequences,All Infections,3.3780173447882253e-4,1.917700198692863e-4
+0.95_090,detected_only_complete,Detected Only,3.3780173447882253e-4,2.87620739880614e-4
+0.95_090,high_activity_symptomatic_men_complete,High Activity Symptomatic Men,3.3780173447882253e-4,8.819514494978243e-4
+0.95_090,random_subsample_high_activity_complete,Random Subsample High Activity,3.3780173447882253e-4,0.0025431847873421294
+0.95_090,symptomatic_men_complete,Symptomatic Men,3.3780173447882253e-4,3.9404140203708725e-4
+0.95_090,symptomatic_only_complete,Symptomatic Only,3.3780173447882253e-4,2.5213932133226377e-4

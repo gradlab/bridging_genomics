@@ -1,0 +1,7 @@
+Population,Slope,Slope_SE,Slope 95% CI Lower,Slope 95% CI Upper,Slope p-value (Wald),Intercept,R2,Adj. R2,Pearson r
+All Infections,1.2823,0.017593,1.2478,1.3168,3.55e-87,2.9e-5,0.9819,0.9817,0.9909
+Detected Only,0.9718,0.022141,0.9285,1.0152,2.10e-40,-2e-6,0.9757,0.9752,0.9878
+High Activity Symptomatic Men,0.4777,0.023622,0.4314,0.524,3.92e-25,-7.1e-5,0.895,0.8928,0.946
+Random Subsample High Activity,0.3488,0.030349,0.2893,0.4083,2.19e-15,-1.02e-4,0.7335,0.7279,0.8564
+Symptomatic Men,0.9166,0.027147,0.8634,0.9698,4.18e-35,-4.7e-5,0.9596,0.9588,0.9796
+Symptomatic Only,1.1231,0.026069,1.072,1.1742,5.03e-40,5e-6,0.9748,0.9743,0.9873
